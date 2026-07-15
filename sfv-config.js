@@ -20,5 +20,5 @@
    ============================================================ */
 
 window.SFV_API_BASE    = 'https://scuola-faunistica-venatoria-sito-u3.vercel.app';
-window.SFV_ADMIN_TOKEN = 'SITO2026!';
+window.SFV_ADMIN_TOKEN = 'NEWSITO2026!';
 
