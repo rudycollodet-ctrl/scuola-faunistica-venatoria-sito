@@ -1,15 +1,14 @@
 // api/recensioni.js — recensioni degli allievi con verifica (moderazione)
+// Usa Vercel Blob (gratuito) per conservare i dati, come le locandine.
 //
-//  GET  /api/recensioni          -> pubblico: solo le recensioni APPROVATE (verificate)
-//  GET  /api/recensioni?all=1    -> protetto: TUTTE (comprese quelle in attesa)  [Bearer ADMIN_TOKEN]
+//  GET  /api/recensioni          -> pubblico: solo le recensioni APPROVATE
+//  GET  /api/recensioni?all=1    -> protetto: TUTTE (comprese in attesa) [Bearer ADMIN_TOKEN]
 //  POST /api/recensioni          -> pubblico: un allievo invia una recensione (resta "pending")
-//  PUT  /api/recensioni          -> protetto: salva l'elenco intero (dopo approva/elimina)
-//
-// Conserva i dati in Vercel KV (stessa configurazione delle locandine).
+//  PUT  /api/recensioni          -> protetto: salva l'elenco intero
 
-import { kv } from '@vercel/kv';
+import { put, list } from '@vercel/blob';
 
-const KEY = 'sfv:recensioni';
+const PATH = 'data/recensioni.json';
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,14 +21,35 @@ function isAdmin(req) {
   return process.env.ADMIN_TOKEN && token === process.env.ADMIN_TOKEN;
 }
 
+async function readData() {
+  try {
+    const { blobs } = await list({ prefix: PATH, limit: 1 });
+    if (!blobs.length) return [];
+    const r = await fetch(blobs[0].url, { cache: 'no-store' });
+    if (!r.ok) return [];
+    const data = await r.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function writeData(items) {
+  await put(PATH, JSON.stringify(items), {
+    access: 'public',
+    contentType: 'application/json',
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    token: process.env.BLOB_READ_WRITE_TOKEN
+  });
+}
+
 export default async function handler(req, res) {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
 
-  let all = (await kv.get(KEY)) || [];
-  if (!Array.isArray(all)) all = [];
+  let all = await readData();
 
-  // GET
   if (req.method === 'GET') {
     res.setHeader('Cache-Control', 'no-store');
     if (req.query && req.query.all === '1') {
@@ -39,7 +59,6 @@ export default async function handler(req, res) {
     return res.status(200).json(all.filter((r) => r.stato === 'approved'));
   }
 
-  // POST — invio pubblico di una recensione (resta in attesa)
   if (req.method === 'POST') {
     try {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -56,20 +75,19 @@ export default async function handler(req, res) {
         creata: Date.now()
       };
       all.push(review);
-      await kv.set(KEY, all);
+      await writeData(all);
       return res.status(200).json({ ok: true });
     } catch (e) {
       return res.status(500).json({ error: 'Invio non riuscito' });
     }
   }
 
-  // PUT — salva l'elenco (moderazione) — protetto
   if (req.method === 'PUT') {
     if (!isAdmin(req)) return res.status(401).json({ error: 'Non autorizzato' });
     try {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
       if (!Array.isArray(body)) return res.status(400).json({ error: 'Formato non valido' });
-      await kv.set(KEY, body);
+      await writeData(body);
       return res.status(200).json({ ok: true, count: body.length });
     } catch (e) {
       return res.status(500).json({ error: 'Salvataggio non riuscito' });
