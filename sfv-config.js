@@ -19,5 +19,5 @@
       Cambiala prima di andare online.
    ============================================================ */
 
-window.SFV_API_BASE    = 'https://scuola-faunistica-venatoria-sito-6yod.vercel.app';
+window.SFV_API_BASE = 'https://scuola-faunistica-venatoria-sito-6y.vercel.app';
 window.SFV_ADMIN_TOKEN = 'Rudy26061976+';
