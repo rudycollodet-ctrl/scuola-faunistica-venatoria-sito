@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>doc-page:not(:defined){visibility:hidden}</style>
+</helmet>
+
+<x-import component-from-global-scope="doc-page" from="./doc-page.js" size="a4" orientation="portrait" margin="0.9in" hint-size="100%,100%">
+
+  <div style="font-family:'Work Sans',sans-serif;color:#241E14;line-height:1.6;font-size:13.5px">
+
+    <div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #16290D;padding-bottom:18px;margin-bottom:28px">
+      <img src="logo.jpg" alt="Scuola Faunistica Venatoria" style="height:44px;width:auto;background:#F3EFE4;border-radius:6px;padding:5px 8px">
+      <div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#B99646;margin-bottom:3px">Scuola Faunistica Venatoria</p>
+        <h1 style="font-family:'Fraunces',serif;font-weight:600;font-size:24px;color:#16290D">Guida alla pubblicazione — Pannello locandine e recensioni</h1>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:#4a4436;margin-bottom:8px">Questa guida ti fa passare dalla <b>modalità demo</b> (le modifiche restano solo sul tuo browser) alla <b>modalità online</b> (le modifiche si vedono da tutti, in tempo reale).</p>
+    <p style="font-size:13.5px;color:#6b6353;margin-bottom:26px;font-style:italic">Serve solo la prima volta. Dopo, aggiornerai locandine e recensioni dal pannello in pochi secondi.</p>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Come funziona, in breve</h2>
+    <ul style="padding-left:20px;margin-bottom:6px">
+      <li style="margin-bottom:6px">Il <b>sito</b> e il <b>pannello</b> leggono locandine e recensioni da un piccolo database online.</li>
+      <li style="margin-bottom:6px">Tu aggiorni tutto dal <b>Pannello locandine</b>, protetto da password.</li>
+      <li style="margin-bottom:6px">Il database e le immagini vivono su <b>Vercel</b> (gratuito per un sito come questo).</li>
+    </ul>
+    <p style="font-size:13px;color:#4a4436;margin-bottom:4px">Tre pezzi già pronti nella cartella <code style="background:#EAE3D2;padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:12px">backend-vercel/</code>:</p>
+    <ul style="padding-left:20px">
+      <li style="margin-bottom:4px"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">api/locandine.js</code> — legge/salva l'elenco delle locandine</li>
+      <li style="margin-bottom:4px"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">api/upload.js</code> — carica le immagini delle locandine</li>
+      <li style="margin-bottom:4px"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">api/recensioni.js</code> — riceve le recensioni degli allievi e gestisce l'approvazione</li>
+      <li style="margin-bottom:4px"><code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">package.json</code> — le dipendenze</li>
+    </ul>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Passo 1 — Metti il sito su Vercel</h2>
+    <ol style="padding-left:20px">
+      <li style="margin-bottom:6px">Crea un account gratuito su <b>vercel.com</b> (puoi entrare con GitHub).</li>
+      <li style="margin-bottom:6px">Crea un nuovo progetto e carica i file del sito <b>insieme</b> alla cartella <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">backend-vercel/</code>. La struttura deve avere una cartella <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">api/</code> con dentro i tre file <code style="font-family:'JetBrains Mono',monospace;font-size:12px">.js</code>, e il <code style="font-family:'JetBrains Mono',monospace;font-size:12px">package.json</code>. Se usi GitHub: metti tutto in un repository e collegalo a Vercel.</li>
+    </ol>
+    <p style="font-size:12.5px;color:#7a7261;font-style:italic;margin-top:2px">Nota: i file <code style="font-family:'JetBrains Mono',monospace;font-size:11.5px">.dc.html</code> sono le pagine del sito e del pannello. Vercel li serve come pagine normali.</p>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Passo 2 — Crea il database e l'archivio immagini</h2>
+    <p style="margin-bottom:8px">Dentro il tuo progetto su Vercel, apri la scheda <b>Storage</b>:</p>
+    <ol style="padding-left:20px">
+      <li style="margin-bottom:6px"><b>Create Database → KV</b> (conserva i testi di locandine e recensioni). Collegalo al progetto quando te lo chiede: Vercel aggiunge da solo le variabili necessarie.</li>
+      <li style="margin-bottom:6px"><b>Create → Blob</b> (l'archivio dove finiscono le immagini delle locandine). Collegalo al progetto: Vercel crea la variabile <code style="font-family:'JetBrains Mono',monospace;font-size:12px">BLOB_READ_WRITE_TOKEN</code>.</li>
+    </ol>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Passo 3 — Imposta la password (ADMIN_TOKEN)</h2>
+    <p style="margin-bottom:10px">Su Vercel, apri <b>Settings → Environment Variables</b> e aggiungi:</p>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:13px">
+      <thead>
+        <tr><th style="text-align:left;padding:8px 10px;background:#16290D;color:#F3EFE4;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em">Nome</th><th style="text-align:left;padding:8px 10px;background:#16290D;color:#F3EFE4;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em">Valore</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:8px 10px;border-bottom:1px solid #d8d0ba;font-family:'JetBrains Mono',monospace;font-size:12.5px">ADMIN_TOKEN</td><td style="padding:8px 10px;border-bottom:1px solid #d8d0ba">la password che vuoi usare</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-bottom:6px">Scegli una password robusta: è quella che ti verrà chiesta nel pannello per salvare.</p>
+    <p>Poi fai un nuovo <b>Deploy</b> (Vercel → Deployments → Redeploy) così le variabili diventano attive.</p>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Passo 4 — Collega il sito al backend</h2>
+    <p style="margin-bottom:8px">Apri il file <code style="font-family:'JetBrains Mono',monospace;font-size:12px;background:#EAE3D2;padding:1px 5px;border-radius:3px">sfv-config.js</code> e modifica due righe:</p>
+    <pre style="background:#16290D;color:#EAD583;padding:14px 16px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;overflow-x:auto;margin-bottom:10px" break-inside="avoid">window.SFV_API_BASE    = 'https://IL-TUO-DOMINIO';
+window.SFV_ADMIN_TOKEN = 'la-stessa-password-di-ADMIN_TOKEN';</pre>
+    <ul style="padding-left:20px;margin-bottom:8px">
+      <li style="margin-bottom:4px"><code style="font-family:'JetBrains Mono',monospace;font-size:12px">SFV_API_BASE</code>: l'indirizzo del sito online (senza barra finale <code style="font-family:'JetBrains Mono',monospace;font-size:12px">/</code>).</li>
+      <li><code style="font-family:'JetBrains Mono',monospace;font-size:12px">SFV_ADMIN_TOKEN</code>: deve essere identica ad <code style="font-family:'JetBrains Mono',monospace;font-size:12px">ADMIN_TOKEN</code> impostata su Vercel.</li>
+    </ul>
+    <p>Salva, ricarica il sito online: in alto nel pannello vedrai l'etichetta diventare <b style="color:#4C7A2E">Online</b>.</p>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Le recensioni degli allievi (con verifica)</h2>
+    <p style="margin-bottom:8px">Il sito ha un pulsante <b>"Scrivi una recensione"</b> nella sezione allievi. Quando un visitatore la invia, la recensione <b>non compare subito</b>: resta in attesa di verifica.</p>
+    <p style="margin-bottom:6px">Per approvarla:</p>
+    <ol style="padding-left:20px;margin-bottom:8px">
+      <li style="margin-bottom:6px">Apri il <b>Pannello</b> → scheda <b>Recensioni</b> (un pallino arancione segnala quante sono in attesa).</li>
+      <li style="margin-bottom:6px">Leggi la recensione. Se è autentica premi <b>✓ Approva e pubblica</b>; altrimenti <b>Rifiuta</b>.</li>
+      <li>Appena approvata compare sul sito, in cima alle testimonianze, marcata come verificata.</li>
+    </ol>
+    <p style="font-size:12.5px;color:#7a7261;font-style:italic">Anche questa funzione va in modalità demo finché non colleghi il backend; <code style="font-family:'JetBrains Mono',monospace;font-size:11.5px">api/recensioni.js</code> usa lo stesso database KV, quindi non serve altra configurazione.</p>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Uso quotidiano — come aggiorno le locandine</h2>
+    <ol style="padding-left:20px">
+      <li style="margin-bottom:6px">Vai su <code style="font-family:'JetBrains Mono',monospace;font-size:12px">https://IL-TUO-DOMINIO/Pannello Locandine.dc.html</code> (oppure clicca <b>Gestione locandine</b> nel footer del sito).</li>
+      <li style="margin-bottom:6px">Inserisci la password.</li>
+      <li style="margin-bottom:6px"><b>Aggiungi locandina</b> → riempi titolo, data, sede, descrizione, link e <b>Carica immagine</b>.</li>
+      <li style="margin-bottom:6px">Usa le frecce ↑ ↓ per ordinarle, il cestino per eliminarle.</li>
+      <li>Premi <b>Salva e pubblica</b>.</li>
+    </ol>
+    <p style="margin:8px 0">Fatto: la sezione <b>News</b> del sito si aggiorna per tutti i visitatori. Quando un corso finisce, eliminalo o sostituiscine l'immagine — nessun limite al numero di locandine.</p>
+
+    <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:#16290D;border-left:3px solid #D9B65C;padding-left:12px;margin:26px 0 10px">Domande frequenti</h2>
+    <p style="margin-bottom:8px"><b>Devo sapere programmare?</b> No. Dopo la configurazione iniziale usi solo il pannello.</p>
+    <p style="margin-bottom:8px"><b>Ho sbagliato la password.</b> Cambiala su Vercel (<code style="font-family:'JetBrains Mono',monospace;font-size:12px">ADMIN_TOKEN</code>), aggiorna <code style="font-family:'JetBrains Mono',monospace;font-size:12px">sfv-config.js</code> con lo stesso valore, e rifai il deploy.</p>
+    <p style="margin-bottom:8px"><b>Le immagini sono troppo grandi?</b> Meglio caricare locandine sotto ~4–5 MB. Se serve, posso aggiungere un ridimensionamento automatico.</p>
+    <p style="margin-bottom:8px"><b>Voglio provarlo prima di pubblicare.</b> Lascia <code style="font-family:'JetBrains Mono',monospace;font-size:12px">SFV_API_BASE</code> vuoto: il pannello funziona in modalità demo sul tuo computer, così prendi confidenza senza rischi.</p>
+
+    <p style="margin-top:24px;padding-top:16px;border-top:1px solid #d8d0ba;font-size:13px;color:#4a4436">Per qualsiasi passaggio, scrivimi: posso seguirti punto per punto.</p>
+  </div>
+
+</x-import>
+</x-dc>
+</body>
+</html>
