@@ -2,8 +2,16 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=./Scuola%20Faunistica%20Venatoria.dc.html">
 <title>Scuola Faunistica Venatoria</title>
+<script>
+  // Reindirizza al sito conservando la parte finale dell'indirizzo
+  // (serve ai link diretti delle locandine, es. #loc-123).
+  (function () {
+    var dest = './Scuola%20Faunistica%20Venatoria.dc.html';
+    location.replace(dest + (location.hash || '') );
+  })();
+</script>
+<noscript><meta http-equiv="refresh" content="0; url=./Scuola%20Faunistica%20Venatoria.dc.html"></noscript>
 </head>
 <body>
 <p>Se non vieni reindirizzato automaticamente, <a href="./Scuola%20Faunistica%20Venatoria.dc.html">clicca qui</a>.</p>

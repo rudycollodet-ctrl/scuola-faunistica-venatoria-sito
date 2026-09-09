@@ -618,6 +618,21 @@ class Component extends DCLogic {
     } catch (e) { /* mantiene solo le curate */ }
   }
 
+  // Un link diretto a una locandina (#loc-...) arriva prima che le
+  // locandine siano caricate: qui la porto in vista e la evidenzio.
+  goToHashLocandina(){
+    const h = (location.hash || '').replace('#', '');
+    if (!h || h.indexOf('loc-') !== 0) return;
+    setTimeout(() => {
+      const el = document.getElementById(h);
+      if (!el) return;
+      const y = el.getBoundingClientRect().top + window.pageYOffset - 110;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+      el.style.boxShadow = '0 0 0 3px #D9B65C, 0 22px 44px -26px rgba(22,41,13,.4)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 2600);
+    }, 120);
+  }
+
   async loadLocandine(tries){
     tries = tries || 0;
     if (!window.SFVData){
@@ -626,7 +641,7 @@ class Component extends DCLogic {
     }
     try {
       const items = await window.SFVData.list();
-      this.setState({ locandine: Array.isArray(items) ? items : [] });
+      this.setState({ locandine: Array.isArray(items) ? items : [] }, () => this.goToHashLocandina());
     } catch (e) {
       this.setState({ locandine: [] });
     }
