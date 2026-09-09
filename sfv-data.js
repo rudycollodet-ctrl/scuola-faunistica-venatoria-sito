@@ -85,19 +85,53 @@
     });
   }
 
+  // Ridimensiona e comprime l'immagine nel browser: le locandine restano
+  // nitide ma il file resta ben sotto il limite di invio del server.
+  function shrinkImage(file, maxSide, quality) {
+    return new Promise(function (res) {
+      var fr = new FileReader();
+      fr.onload = function () {
+        var img = new Image();
+        img.onload = function () {
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var scale = Math.min(1, maxSide / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale));
+          var ch = Math.max(1, Math.round(h * scale));
+          var c = document.createElement('canvas');
+          c.width = cw; c.height = ch;
+          var ctx = c.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(img, 0, 0, cw, ch);
+          try { res(c.toDataURL('image/jpeg', quality)); }
+          catch (e) { res(fr.result); }
+        };
+        img.onerror = function () { res(fr.result); };
+        img.src = fr.result;
+      };
+      fr.onerror = function () { res(''); };
+      fr.readAsDataURL(file);
+    });
+  }
+
   async function uploadImage(file) {
-    var dataUrl = await fileToDataUrl(file);
+    var dataUrl = await shrinkImage(file, 1600, 0.82);
+    if (!dataUrl) dataUrl = await fileToDataUrl(file);
+    // se ancora troppo pesante, riduco ulteriormente
+    if (dataUrl.length > 3200000) dataUrl = await shrinkImage(file, 1200, 0.72);
+    if (dataUrl.length > 3200000) dataUrl = await shrinkImage(file, 900, 0.65);
     if (isRemote()) {
       var r = await fetch(base() + '/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() },
-        body: JSON.stringify({ name: file.name, dataUrl: dataUrl })
+        body: JSON.stringify({ name: (file.name || 'locandina').replace(/\.[^.]+$/, '') + '.jpg', dataUrl: dataUrl })
       });
       if (r.status === 401 || r.status === 403) throw new Error('Password non valida.');
       if (!r.ok) {
         var det = '';
         try { var e1 = await r.json(); det = e1 && e1.error ? e1.error : ''; }
         catch (e2) { try { det = await r.text(); } catch (e3) {} }
+        if (r.status === 413) throw new Error('Immagine troppo grande anche dopo la compressione. Prova con una foto piu leggera.');
         throw new Error('Caricamento immagine non riuscito (' + r.status + '). ' + (det || 'Nessun dettaglio dal server.'));
       }
       var j = await r.json();
