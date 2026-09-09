@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,400;9..144,1,500&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{margin:0}
+  input,textarea,button{font-family:inherit}
+  input:focus,textarea:focus{outline:none}
+  .sfv-field::placeholder{color:#9C917C}
+</style>
+<script src="sfv-config.js"></script>
+<script src="sfv-data.js"></script>
+</helmet>
+
+<div style="font-family:'Work Sans',sans-serif;background:#16290D;color:#F3EFE4;min-height:100vh;-webkit-font-smoothing:antialiased">
+
+  <!-- TOPBAR -->
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 5vw;border-bottom:1px solid rgba(217,182,92,.18);position:sticky;top:0;background:rgba(16,30,9,.96);backdrop-filter:blur(8px);z-index:40">
+    <div>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#B99646">Scuola Faunistica Venatoria</p>
+      <h1 style="font-family:'Fraunces',serif;font-weight:600;font-size:22px;color:#F3EFE4">Gestione locandine</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="display:flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:{{ modeColor }};border:1px solid {{ modeBorder }};padding:6px 11px;border-radius:20px">
+        <span style="width:7px;height:7px;border-radius:50%;background:{{ modeColor }};display:inline-block"></span>{{ modeLabel }}
+      </span>
+      <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+        <a href="Scuola Faunistica Venatoria.dc.html" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#D9B65C;border:1px solid rgba(217,182,92,.4);padding:8px 14px;border-radius:3px;text-decoration:none">Vedi il sito ↗</a>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- LOGIN GATE -->
+  <sc-if value="{{ locked }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:420px;margin:9vh auto;padding:0 24px">
+      <div style="background:#1F3814;border:1px solid rgba(217,182,92,.2);border-radius:6px;padding:36px 32px">
+        <div style="width:44px;height:44px;border-radius:50%;background:rgba(217,182,92,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+          <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px"><rect x="4.5" y="10" width="15" height="10" rx="2" stroke="#D9B65C" stroke-width="1.6"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="#D9B65C" stroke-width="1.6"/></svg>
+        </div>
+        <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin-bottom:8px">Area riservata</h2>
+        <p style="font-size:14px;color:#B9C4AE;margin-bottom:24px">Inserisci la password per gestire le locandine dei corsi.</p>
+        <form onSubmit="{{ doLogin }}">
+          <input ref="{{ pwRef }}" class="sfv-field" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;background:#16290D;border:1px solid rgba(217,182,92,.25);color:#F3EFE4;font-size:15px;padding:13px 15px;border-radius:4px;margin-bottom:14px" style-focus="border-color:#D9B65C">
+          <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
+            <p style="font-size:13px;color:#E4948A;margin-bottom:14px">{{ loginError }}</p>
+          </sc-if>
+          <button type="submit" style="width:100%;background:#D9B65C;color:#16290D;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;padding:14px;border-radius:4px;cursor:pointer">Entra →</button>
+        </form>
+        <p style="font-size:11.5px;color:#7d8a71;margin-top:18px;line-height:1.5">{{ modeHint }}</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ADMIN -->
+  <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1100px;margin:0 auto;padding:32px 5vw 80px">
+
+      <div style="display:flex;gap:6px;margin-bottom:28px;border-bottom:1px solid rgba(217,182,92,.16)">
+        <button onClick="{{ tabLoc }}" style="position:relative;background:transparent;border:none;color:{{ locTabColor }};font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:12px 18px;cursor:pointer;border-bottom:2px solid {{ locTabBorder }}">Locandine</button>
+        <button onClick="{{ tabRev }}" style="position:relative;background:transparent;border:none;color:{{ revTabColor }};font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:12px 18px;cursor:pointer;border-bottom:2px solid {{ revTabBorder }}">
+          Recensioni
+          <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}">
+            <span style="margin-left:8px;background:#D97A3B;color:#16290D;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;vertical-align:middle">{{ pendingCount }}</span>
+          </sc-if>
+        </button>
+      </div>
+
+      <sc-if value="{{ showLoc }}" hint-placeholder-val="{{ true }}">
+      <div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-bottom:26px">
+        <div>
+          <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:26px">Le tue locandine</h2>
+          <p style="font-size:13.5px;color:#B9C4AE;margin-top:2px">{{ countLabel }} · usa le frecce per ordinarle</p>
+        </div>
+        <button onClick="{{ addNew }}" style="display:inline-flex;align-items:center;gap:8px;background:#D9B65C;color:#16290D;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;padding:12px 18px;border-radius:4px;cursor:pointer">
+          <svg viewBox="0 0 16 16" fill="none" style="width:14px;height:14px"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Aggiungi locandina
+        </button>
+      </div>
+
+      <sc-if value="{{ saveMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(76,122,46,.18);border:1px solid rgba(122,180,86,.4);color:#CDE6BA;font-size:13.5px;padding:12px 16px;border-radius:4px;margin-bottom:20px">{{ saveMsg }}</div>
+      </sc-if>
+      <sc-if value="{{ errMsg }}" hint-placeholder-val="{{ false }}">
+        <div style="background:rgba(160,60,50,.2);border:1px solid rgba(220,120,110,.4);color:#F0C4BD;font-size:13.5px;padding:12px 16px;border-radius:4px;margin-bottom:20px">{{ errMsg }}</div>
+      </sc-if>
+
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px dashed rgba(217,182,92,.3);border-radius:6px;padding:56px 30px;text-align:center;background:#1F3814">
+          <p style="font-family:'Fraunces',serif;font-size:20px;margin-bottom:8px">Ancora nessuna locandina.</p>
+          <p style="font-size:14px;color:#B9C4AE;margin-bottom:20px">Aggiungi il primo corso in partenza — comparirà subito nella sezione News del sito.</p>
+          <button onClick="{{ addNew }}" style="background:#D9B65C;color:#16290D;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:12px 20px;border-radius:4px;cursor:pointer">Aggiungi la prima →</button>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <sc-for list="{{ items }}" as="it" hint-placeholder-count="0">
+          <div style="display:grid;grid-template-columns:200px 1fr;gap:0;background:#1F3814;border:1px solid rgba(217,182,92,.16);border-radius:6px;overflow:hidden">
+
+            <!-- image column -->
+            <div style="background:#16290D;position:relative;display:flex;flex-direction:column">
+              <div style="flex:1;min-height:230px;position:relative;background:repeating-linear-gradient(45deg,#16290D,#16290D 10px,#1c3311 10px,#1c3311 20px);display:flex;align-items:center;justify-content:center">
+                <sc-if value="{{ it.hasImage }}" hint-placeholder-val="{{ false }}">
+                  {{ it.imgEl }}
+                </sc-if>
+                <sc-if value="{{ it.noImage }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#5f7052">nessuna immagine</span>
+                </sc-if>
+                <sc-if value="{{ it.uploading }}" hint-placeholder-val="{{ false }}">
+                  <span style="position:absolute;inset:0;background:rgba(16,30,9,.7);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#D9B65C">Carico…</span>
+                </sc-if>
+              </div>
+              <label style="display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#D9B65C;border-top:1px solid rgba(217,182,92,.18);cursor:pointer;background:#1a3010" style-hover="background:#22400f">
+                <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M8 11V3M5 6l3-3 3 3M3 12v1h10v-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Carica immagine
+                <input type="file" accept="image/*" onChange="{{ it.onFile }}" style="display:none">
+              </label>
+            </div>
+
+            <!-- fields column -->
+            <div style="padding:20px 22px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <label style="flex:1 1 60%;min-width:200px;display:flex;flex-direction:column;gap:5px">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8fa07e">Titolo del corso</span>
+                  <input class="sfv-field" type="text" value="{{ it.titolo }}" onInput="{{ it.set_titolo }}" placeholder="Es. Corso base — Licenza di caccia" style="background:#16290D;border:1px solid rgba(217,182,92,.22);color:#F3EFE4;font-size:14.5px;padding:10px 12px;border-radius:4px" style-focus="border-color:#D9B65C">
+                </label>
+                <label style="flex:1 1 30%;min-width:130px;display:flex;flex-direction:column;gap:5px">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8fa07e">Stato</span>
+                  <input class="sfv-field" type="text" value="{{ it.stato }}" onInput="{{ it.set_stato }}" placeholder="Iscrizioni aperte" style="background:#16290D;border:1px solid rgba(217,182,92,.22);color:#F3EFE4;font-size:14.5px;padding:10px 12px;border-radius:4px" style-focus="border-color:#D9B65C">
+                </label>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap">
+                <label style="flex:1 1 45%;min-width:150px;display:flex;flex-direction:column;gap:5px">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8fa07e">Data di inizio</span>
+                  <input class="sfv-field" type="text" value="{{ it.data }}" onInput="{{ it.set_data }}" placeholder="Es. 15 marzo 2026" style="background:#16290D;border:1px solid rgba(217,182,92,.22);color:#F3EFE4;font-size:14.5px;padding:10px 12px;border-radius:4px" style-focus="border-color:#D9B65C">
+                </label>
+                <label style="flex:1 1 45%;min-width:150px;display:flex;flex-direction:column;gap:5px">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8fa07e">Sede / luogo</span>
+                  <input class="sfv-field" type="text" value="{{ it.sede }}" onInput="{{ it.set_sede }}" placeholder="Es. Vazzola (TV)" style="background:#16290D;border:1px solid rgba(217,182,92,.22);color:#F3EFE4;font-size:14.5px;padding:10px 12px;border-radius:4px" style-focus="border-color:#D9B65C">
+                </label>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8fa07e">Descrizione</span>
+                <textarea class="sfv-field" value="{{ it.descrizione }}" onInput="{{ it.set_descrizione }}" placeholder="Breve descrizione: a chi è rivolto, cosa si impara, come iscriversi." rows="2" style="background:#16290D;border:1px solid rgba(217,182,92,.22);color:#F3EFE4;font-size:14px;padding:10px 12px;border-radius:4px;resize:vertical;line-height:1.5"></textarea>
+              </label>
+              <label style="display:flex;flex-direction:column;gap:5px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8fa07e">Link iscrizione (facoltativo)</span>
+                <input class="sfv-field" type="url" value="{{ it.link }}" onInput="{{ it.set_link }}" placeholder="https://…" style="background:#16290D;border:1px solid rgba(217,182,92,.22);color:#F3EFE4;font-size:13.5px;padding:10px 12px;border-radius:4px;font-family:'JetBrains Mono',monospace" style-focus="border-color:#D9B65C">
+              </label>
+
+              <div style="display:flex;align-items:center;gap:8px;margin-top:4px;border-top:1px solid rgba(217,182,92,.12);padding-top:14px">
+                <button onClick="{{ it.moveUp }}" title="Sposta su" style="width:34px;height:34px;border-radius:4px;border:1px solid rgba(217,182,92,.28);background:transparent;color:#D9B65C;cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="background:rgba(217,182,92,.12)">↑</button>
+                <button onClick="{{ it.moveDown }}" title="Sposta giù" style="width:34px;height:34px;border-radius:4px;border:1px solid rgba(217,182,92,.28);background:transparent;color:#D9B65C;cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="background:rgba(217,182,92,.12)">↓</button>
+                <span style="flex:1"></span>
+                <button onClick="{{ it.remove }}" style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;border:1px solid rgba(220,120,110,.4);background:transparent;color:#E4948A;padding:9px 14px;border-radius:4px;cursor:pointer" style-hover="background:rgba(160,60,50,.18)">Elimina</button>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- SAVE BAR -->
+      <div style="position:sticky;bottom:0;margin-top:28px;background:rgba(16,30,9,.96);backdrop-filter:blur(8px);border-top:1px solid rgba(217,182,92,.2);padding:16px 0;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+        <p style="font-size:12.5px;color:#B9C4AE;max-width:52ch">{{ dirtyHint }}</p>
+        <button onClick="{{ saveAll }}" disabled="{{ savingDisabled }}" style="background:{{ saveBtnBg }};color:#16290D;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;padding:14px 28px;border-radius:4px;cursor:{{ saveCursor }}">{{ saveBtnLabel }}</button>
+      </div>
+      </div>
+      </sc-if>
+
+      <!-- TAB RECENSIONI -->
+      <sc-if value="{{ showRev }}" hint-placeholder-val="{{ false }}">
+      <div>
+        <div style="margin-bottom:24px">
+          <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:26px">Recensioni degli allievi</h2>
+          <p style="font-size:13.5px;color:#B9C4AE;margin-top:2px">{{ revCountLabel }} · approva quelle autentiche per pubblicarle sul sito.</p>
+        </div>
+
+        <sc-if value="{{ revError }}" hint-placeholder-val="{{ false }}">
+          <div style="background:rgba(160,60,50,.2);border:1px solid rgba(220,120,110,.4);color:#F0C4BD;font-size:13.5px;padding:12px 16px;border-radius:4px;margin-bottom:20px">{{ revError }}</div>
+        </sc-if>
+
+        <!-- IN ATTESA -->
+        <div style="margin-bottom:34px">
+          <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#D97A3B;margin-bottom:14px;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:#D97A3B;display:inline-block"></span>In attesa di verifica ({{ pendingCount }})</p>
+          <sc-if value="{{ noPending }}" hint-placeholder-val="{{ true }}">
+            <p style="font-size:13.5px;color:#7d8a71;font-style:italic">Nessuna recensione in attesa. Quando un allievo ne invia una dal sito, comparirà qui per l'approvazione.</p>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ pending }}" as="r" hint-placeholder-count="0">
+              <div style="background:#1F3814;border:1px solid rgba(217,120,59,.3);border-left:3px solid #D97A3B;border-radius:6px;padding:20px 22px">
+                <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+                  <div>
+                    <b style="font-family:'Fraunces',serif;font-size:18px;color:#F3EFE4">{{ r.titolo }}</b>
+                    <span style="font-size:13px;color:#9fb08d;margin-left:8px">— {{ r.nome }}</span>
+                  </div>
+                  <sc-if value="{{ r.hasCorso }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#B99646">{{ r.corso }}</span>
+                  </sc-if>
+                </div>
+                <p style="font-size:14.5px;color:#CBD6BE;line-height:1.6;margin-bottom:16px">{{ r.testo }}</p>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <button onClick="{{ r.approve }}" style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;background:#4C7A2E;color:#F3EFE4;border:none;padding:10px 16px;border-radius:4px;cursor:pointer" style-hover="background:#3d6023">✓ Approva e pubblica</button>
+                  <button onClick="{{ r.reject }}" style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;background:transparent;border:1px solid rgba(220,120,110,.4);color:#E4948A;padding:10px 16px;border-radius:4px;cursor:pointer" style-hover="background:rgba(160,60,50,.18)">Rifiuta</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- PUBBLICATE -->
+        <div>
+          <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8FCB6E;margin-bottom:14px;display:flex;align-items:center;gap:8px"><span style="width:7px;height:7px;border-radius:50%;background:#8FCB6E;display:inline-block"></span>Pubblicate ({{ approvedCount }})</p>
+          <sc-if value="{{ noApproved }}" hint-placeholder-val="{{ true }}">
+            <p style="font-size:13.5px;color:#7d8a71;font-style:italic">Ancora nessuna recensione pubblicata dagli allievi. (Le testimonianze storiche restano comunque visibili sul sito.)</p>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ approved }}" as="r" hint-placeholder-count="0">
+              <div style="background:#1a3010;border:1px solid rgba(143,203,110,.22);border-radius:6px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start;justify-content:space-between">
+                <div style="flex:1">
+                  <div style="margin-bottom:4px">
+                    <b style="font-family:'Fraunces',serif;font-size:16px;color:#F3EFE4">{{ r.titolo }}</b>
+                    <span style="font-size:12.5px;color:#9fb08d;margin-left:8px">— {{ r.nome }}</span>
+                  </div>
+                  <p style="font-size:13.5px;color:#B9C4AE;line-height:1.55">{{ r.testo }}</p>
+                </div>
+                <button onClick="{{ r.reject }}" title="Rimuovi dal sito" style="flex-shrink:0;background:transparent;border:1px solid rgba(220,120,110,.35);color:#E4948A;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:8px 12px;border-radius:4px;cursor:pointer" style-hover="background:rgba(160,60,50,.18)">Rimuovi</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:&quot;100%&quot;}}">
+class Component extends DCLogic {
+  state = {
+    booted: false,
+    authed: false,
+    loginError: '',
+    items: [],
+    loading: true,
+    saving: false,
+    dirty: false,
+    saveMsg: '',
+    errMsg: '',
+    tab: 'loc',
+    reviews: [],
+    revError: ''
+  };
+
+  constructor(props){
+    super(props);
+    this.pwRef = React.createRef();
+  }
+
+  waitForData(cb, tries){
+    tries = tries || 0;
+    if (window.SFVData) return cb();
+    if (tries > 25) return cb();
+    setTimeout(() => this.waitForData(cb, tries + 1), 120);
+  }
+
+  componentDidMount(){
+    this.waitForData(() => {
+      // se già loggato in questa sessione
+      const sess = sessionStorage.getItem('sfv:admin:ok') === '1';
+      this.setState({ booted: true, authed: sess });
+      if (sess) this.fetchItems();
+    });
+  }
+
+  async fetchItems(){
+    this.setState({ loading: true });
+    try {
+      const items = await window.SFVData.list();
+      this.setState({ items: items || [], loading: false, dirty: false });
+    } catch(e){
+      this.setState({ items: [], loading: false, errMsg: 'Impossibile caricare i dati: ' + e.message });
+    }
+    this.fetchReviews();
+  }
+
+  async fetchReviews(){
+    try {
+      const r = await window.SFVData.listReviewsAll();
+      this.setState({ reviews: r || [], revError: '' });
+    } catch(e){
+      this.setState({ revError: 'Impossibile caricare le recensioni: ' + e.message });
+    }
+  }
+
+  async moderateReview(id, action){
+    const next = this.state.reviews
+      .map(r => r.id === id ? { ...r, stato: 'approved' } : r)
+      .filter(r => !(action === 'reject' && r.id === id));
+    this.setState({ reviews: next, revError: '' });
+    try {
+      await window.SFVData.saveReviews(next);
+    } catch(e){
+      this.setState({ revError: 'Salvataggio non riuscito: ' + e.message });
+      this.fetchReviews();
+    }
+  }
+
+  doLogin = (ev) => {
+    ev.preventDefault();
+    const val = (this.pwRef.current && this.pwRef.current.value) || '';
+    const expected = window.SFV_ADMIN_TOKEN || '';
+    if (!val){ this.setState({ loginError: 'Inserisci la password.' }); return; }
+    // In modalità remota la password vera è verificata dal server al salvataggio;
+    // qui controlliamo contro il token configurato per l'accesso al pannello.
+    if (expected && val !== expected){
+      this.setState({ loginError: 'Password non corretta.' });
+      return;
+    }
+    window.SFVData.setToken(val);
+    sessionStorage.setItem('sfv:admin:ok', '1');
+    this.setState({ authed: true, loginError: '' });
+    this.fetchItems();
+  };
+
+  mutate(fn){
+    this.setState(s => { const items = s.items.slice(); fn(items); return { items, dirty: true, saveMsg: '' }; });
+  }
+
+  addNew = () => {
+    this.mutate(items => {
+      items.push({ id: window.SFVData.newId(), titolo: '', stato: 'Iscrizioni aperte', data: '', sede: '', descrizione: '', link: '', immagine: '', ordine: items.length });
+    });
+    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 60);
+  };
+
+  setField(id, key, value){
+    this.mutate(items => { const it = items.find(x => x.id === id); if (it) it[key] = value; });
+  }
+
+  removeItem(id){
+    this.mutate(items => { const i = items.findIndex(x => x.id === id); if (i > -1) items.splice(i, 1); });
+  }
+
+  move(id, dir){
+    this.mutate(items => {
+      const i = items.findIndex(x => x.id === id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= items.length) return;
+      const tmp = items[i]; items[i] = items[j]; items[j] = tmp;
+    });
+  }
+
+  async onFile(id, ev){
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    this.mutate(items => { const it = items.find(x => x.id === id); if (it) it.uploading = true; });
+    try {
+      const url = await window.SFVData.uploadImage(file);
+      this.mutate(items => { const it = items.find(x => x.id === id); if (it){ it.immagine = url; it.uploading = false; } });
+    } catch(e){
+      this.mutate(items => { const it = items.find(x => x.id === id); if (it) it.uploading = false; });
+      this.setState({ errMsg: 'Caricamento immagine non riuscito: ' + e.message });
+    }
+  }
+
+  saveAll = async () => {
+    if (this.state.saving) return;
+    this.setState({ saving: true, saveMsg: '', errMsg: '' });
+    try {
+      const clean = this.state.items.map(it => { const c = Object.assign({}, it); delete c.uploading; return c; });
+      await window.SFVData.save(clean);
+      this.setState({ saving: false, dirty: false, saveMsg: window.SFVData.isRemote()
+        ? 'Salvato! Le modifiche sono ora online e visibili a tutti.'
+        : 'Salvato in modalità demo (solo su questo browser). Collega il backend per pubblicarle a tutti.' });
+    } catch(e){
+      this.setState({ saving: false, errMsg: 'Salvataggio non riuscito: ' + e.message });
+    }
+  };
+
+  renderVals(){
+    const remote = !!(window.SFVData && window.SFVData.isRemote());
+    const items = this.state.items.map((it, idx) => ({
+      id: it.id,
+      titolo: it.titolo || '',
+      stato: it.stato || '',
+      data: it.data || '',
+      sede: it.sede || '',
+      descrizione: it.descrizione || '',
+      link: it.link || '',
+      immagine: it.immagine || '',
+      hasImage: !!it.immagine,
+      noImage: !it.immagine,
+      uploading: !!it.uploading,
+      imgEl: it.immagine ? React.createElement('img', { src: it.immagine, alt: 'anteprima', style: { position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' } }) : null,
+      set_titolo: (e) => this.setField(it.id, 'titolo', e.target.value),
+      set_stato: (e) => this.setField(it.id, 'stato', e.target.value),
+      set_data: (e) => this.setField(it.id, 'data', e.target.value),
+      set_sede: (e) => this.setField(it.id, 'sede', e.target.value),
+      set_descrizione: (e) => this.setField(it.id, 'descrizione', e.target.value),
+      set_link: (e) => this.setField(it.id, 'link', e.target.value),
+      onFile: (e) => this.onFile(it.id, e),
+      remove: () => this.removeItem(it.id),
+      moveUp: () => this.move(it.id, -1),
+      moveDown: () => this.move(it.id, +1)
+    }));
+
+    const n = items.length;
+    const tab = this.state.tab;
+    const revs = this.state.reviews || [];
+    const pendingArr = revs.filter(r => r.stato !== 'approved');
+    const approvedArr = revs.filter(r => r.stato === 'approved');
+    const mapRev = (r) => ({
+      id: r.id,
+      nome: r.nome && r.nome.trim() ? r.nome.trim() : 'Allievo',
+      titolo: r.titolo && r.titolo.trim() ? r.titolo.trim() : 'Recensione',
+      testo: r.testo || '',
+      corso: r.corso || '',
+      hasCorso: !!(r.corso && r.corso.trim()),
+      approve: () => this.moderateReview(r.id, 'approve'),
+      reject: () => this.moderateReview(r.id, 'reject')
+    });
+
+    return {
+      tabLoc: () => this.setState({ tab: 'loc' }),
+      tabRev: () => { this.setState({ tab: 'rev' }); },
+      showLoc: tab === 'loc',
+      showRev: tab === 'rev',
+      locTabColor: tab === 'loc' ? '#F3EFE4' : '#8fa07e',
+      locTabBorder: tab === 'loc' ? '#D9B65C' : 'transparent',
+      revTabColor: tab === 'rev' ? '#F3EFE4' : '#8fa07e',
+      revTabBorder: tab === 'rev' ? '#D9B65C' : 'transparent',
+      pending: pendingArr.map(mapRev),
+      approved: approvedArr.map(mapRev),
+      pendingCount: pendingArr.length,
+      approvedCount: approvedArr.length,
+      hasPending: pendingArr.length > 0,
+      noPending: pendingArr.length === 0,
+      noApproved: approvedArr.length === 0,
+      revCountLabel: revs.length === 0 ? 'Nessuna recensione ricevuta' : (revs.length === 1 ? '1 recensione ricevuta' : revs.length + ' recensioni ricevute'),
+      revError: this.state.revError,
+      booted: this.state.booted,
+      authed: this.state.authed,
+      locked: this.state.booted && !this.state.authed,
+      loginError: this.state.loginError,
+      pwRef: this.pwRef,
+      doLogin: this.doLogin,
+      addNew: this.addNew,
+      saveAll: this.saveAll,
+      items,
+      isEmpty: !this.state.loading && n === 0,
+      countLabel: n === 0 ? 'Nessuna locandina' : (n === 1 ? '1 locandina' : n + ' locandine'),
+      saveMsg: this.state.saveMsg,
+      errMsg: this.state.errMsg,
+      savingDisabled: this.state.saving,
+      saveCursor: this.state.saving ? 'default' : 'pointer',
+      saveBtnBg: this.state.saving ? '#9a8a55' : '#D9B65C',
+      saveBtnLabel: this.state.saving ? 'Salvataggio…' : 'Salva e pubblica',
+      dirtyHint: this.state.dirty
+        ? 'Hai modifiche non salvate. Premi “Salva e pubblica” per applicarle.'
+        : 'Tutte le modifiche sono salvate.',
+      modeLabel: remote ? 'Online' : 'Demo',
+      modeColor: remote ? '#8FCB6E' : '#D9B65C',
+      modeBorder: remote ? 'rgba(143,203,110,.4)' : 'rgba(217,182,92,.4)',
+      modeHint: remote
+        ? 'Modalità online: le modifiche vengono salvate sul database e viste da tutti.'
+        : 'Modalità demo: il backend non è ancora collegato, quindi le modifiche restano su questo browser. Vedi GUIDA-PUBBLICAZIONE per attivare la pubblicazione a tutti.'
+    };
+  }
+}
+</script>
+</body>
+</html>
