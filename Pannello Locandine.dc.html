@@ -160,6 +160,7 @@
               <div style="display:flex;align-items:center;gap:8px;margin-top:4px;border-top:1px solid rgba(217,182,92,.12);padding-top:14px">
                 <button onClick="{{ it.moveUp }}" title="Sposta su" style="width:34px;height:34px;border-radius:4px;border:1px solid rgba(217,182,92,.28);background:transparent;color:#D9B65C;cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="background:rgba(217,182,92,.12)">↑</button>
                 <button onClick="{{ it.moveDown }}" title="Sposta giù" style="width:34px;height:34px;border-radius:4px;border:1px solid rgba(217,182,92,.28);background:transparent;color:#D9B65C;cursor:pointer;display:flex;align-items:center;justify-content:center" style-hover="background:rgba(217,182,92,.12)">↓</button>
+                <button onClick="{{ it.copyLink }}" title="Copia il link di questa locandina" style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;border:1px solid rgba(217,182,92,.4);background:transparent;color:#D9B65C;padding:9px 14px;border-radius:4px;cursor:pointer" style-hover="background:rgba(217,182,92,.14)">{{ it.copyLabel }}</button>
                 <span style="flex:1"></span>
                 <button onClick="{{ it.remove }}" style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;border:1px solid rgba(220,120,110,.4);background:transparent;color:#E4948A;padding:9px 14px;border-radius:4px;cursor:pointer" style-hover="background:rgba(160,60,50,.18)">Elimina</button>
               </div>
@@ -247,6 +248,7 @@
 class Component extends DCLogic {
   state = {
     booted: false,
+    copiedId: null,
     authed: false,
     loginError: '',
     items: [],
@@ -346,6 +348,42 @@ class Component extends DCLogic {
     this.mutate(items => { const it = items.find(x => x.id === id); if (it) it[key] = value; });
   }
 
+  siteUrl(){
+    // il pannello sta nella stessa cartella del sito
+    var u = location.href.split('#')[0].split('?')[0];
+    return u.replace(/[^/]*$/, '');
+  }
+
+  copyLink(id){
+    var url = this.siteUrl() + '#loc-' + id;
+    var done = () => {
+      this.setState({ copiedId: id });
+      clearTimeout(this._copyT);
+      this._copyT = setTimeout(() => this.setState({ copiedId: null }), 2200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, () => this.fallbackCopy(url, done));
+    } else {
+      this.fallbackCopy(url, done);
+    }
+  }
+
+  fallbackCopy(url, done){
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      done();
+    } catch (e) {
+      window.prompt('Copia il link:', url);
+    }
+  }
+
   removeItem(id){
     this.mutate(items => { const i = items.findIndex(x => x.id === id); if (i > -1) items.splice(i, 1); });
   }
@@ -408,6 +446,8 @@ class Component extends DCLogic {
       set_descrizione: (e) => this.setField(it.id, 'descrizione', e.target.value),
       set_link: (e) => this.setField(it.id, 'link', e.target.value),
       onFile: (e) => this.onFile(it.id, e),
+      copyLabel: this.state.copiedId === it.id ? 'Link copiato' : 'Copia link',
+      copyLink: () => this.copyLink(it.id),
       remove: () => this.removeItem(it.id),
       moveUp: () => this.move(it.id, -1),
       moveDown: () => this.move(it.id, +1)

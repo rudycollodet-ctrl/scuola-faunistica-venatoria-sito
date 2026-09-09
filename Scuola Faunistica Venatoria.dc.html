@@ -232,7 +232,7 @@
     <sc-if value="{{ hasLocandine }}" hint-placeholder-val="{{ true }}">
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:24px;max-width:1240px;margin:0 auto">
         <sc-for list="{{ locandine }}" as="l" hint-placeholder-count="3">
-          <article style="display:flex;flex-direction:column;background:#fff;border:1px solid rgba(36,30,20,.12);border-radius:4px;overflow:hidden;transition:transform .3s, box-shadow .3s" style-hover="transform:translateY(-4px);box-shadow:0 22px 44px -26px rgba(22,41,13,.4)">
+          <article id="{{ l.anchor }}" style="display:flex;flex-direction:column;background:#fff;border:1px solid rgba(36,30,20,.12);border-radius:4px;overflow:hidden;transition:transform .3s, box-shadow .3s;scroll-margin-top:110px" style-hover="transform:translateY(-4px);box-shadow:0 22px 44px -26px rgba(22,41,13,.4)">
             <sc-if value="{{ l.hasImage }}" hint-placeholder-val="{{ false }}">
               {{ l.imgEl }}
             </sc-if>
@@ -789,6 +789,7 @@ class Component extends DCLogic {
     const locandineLoaded = rawLoc !== null;
     const locandine = (rawLoc || []).map(l => ({
       id: l.id,
+      anchor: 'loc-' + l.id,
       titolo: l.titolo || 'Corso',
       stato: l.stato || '',
       descrizione: l.descrizione || '',
