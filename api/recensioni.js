@@ -12,10 +12,17 @@ import { put, list } from '@vercel/blob';
 // e' stato collegato su Vercel (es. blobpub_READ_WRITE_TOKEN).
 function blobToken() {
   var env = process.env;
-  if (env.BLOB_READ_WRITE_TOKEN) return env.BLOB_READ_WRITE_TOKEN;
+  // Le locandine devono essere visibili sul sito: serve l'archivio PUBBLICO.
+  // Su Vercel il suo token si chiama blobpub_READ_WRITE_TOKEN.
+  if (env.blobpub_READ_WRITE_TOKEN) return env.blobpub_READ_WRITE_TOKEN;
+  if (env.BLOBPUB_READ_WRITE_TOKEN) return env.BLOBPUB_READ_WRITE_TOKEN;
   var keys = Object.keys(env);
   for (var i = 0; i < keys.length; i++) {
-    if (/READ_WRITE_TOKEN$/.test(keys[i]) && env[keys[i]]) return env[keys[i]];
+    if (/^blobpub/i.test(keys[i]) && /READ_WRITE_TOKEN$/i.test(keys[i]) && env[keys[i]]) return env[keys[i]];
+  }
+  if (env.BLOB_READ_WRITE_TOKEN) return env.BLOB_READ_WRITE_TOKEN;
+  for (var j = 0; j < keys.length; j++) {
+    if (/READ_WRITE_TOKEN$/i.test(keys[j]) && env[keys[j]]) return env[keys[j]];
   }
   return undefined;
 }
