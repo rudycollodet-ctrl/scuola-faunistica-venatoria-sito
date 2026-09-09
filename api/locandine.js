@@ -37,7 +37,7 @@ function setCors(res) {
 
 async function readData() {
   try {
-    const { blobs } = await list({ prefix: PATH, limit: 1 });
+    const { blobs } = await list({ prefix: PATH, limit: 1, token: blobToken() });
     if (!blobs.length) return [];
     const r = await fetch(blobs[0].url, { cache: 'no-store' });
     if (!r.ok) return [];
