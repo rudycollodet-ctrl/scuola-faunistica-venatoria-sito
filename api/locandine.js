@@ -7,6 +7,19 @@
 
 import { put, list } from '@vercel/blob';
 
+// Il token del Blob puo' avere nomi diversi a seconda di come l'archivio
+// e' stato collegato su Vercel (es. blobpub_READ_WRITE_TOKEN).
+function blobToken() {
+  var env = process.env;
+  if (env.BLOB_READ_WRITE_TOKEN) return env.BLOB_READ_WRITE_TOKEN;
+  var keys = Object.keys(env);
+  for (var i = 0; i < keys.length; i++) {
+    if (/READ_WRITE_TOKEN$/.test(keys[i]) && env[keys[i]]) return env[keys[i]];
+  }
+  return undefined;
+}
+
+
 const PATH = 'data/locandine.json';
 
 function setCors(res) {
@@ -34,7 +47,7 @@ async function writeData(items) {
     contentType: 'application/json',
     addRandomSuffix: false,
     allowOverwrite: true,
-    token: process.env.BLOB_READ_WRITE_TOKEN
+    token: blobToken()
   });
 }
 
