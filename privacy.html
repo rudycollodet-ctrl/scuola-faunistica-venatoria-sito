@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy e cookie — Scuola Faunistica Venatoria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f1e4; --paper:#fffdf7; --ink:#2b2418; --muted:#6f6550; --line:#e6dcc4;
+    --brown:#2E2418; --forest:#16290D; --gold:#b8862f; --gold-hi:#D9B65C; --gold-soft:#f3e6c4;
+    --green:#2d5a3d; --green-soft:#e6efe7;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',system-ui,-apple-system,Segoe UI,sans-serif;font-size:15.5px;line-height:1.68;-webkit-text-size-adjust:100%}
+  a{color:var(--green)}
+  a:hover{color:var(--gold)}
+
+  header{background:var(--forest);color:var(--gold-soft);position:relative;overflow:hidden}
+  header::after{content:"";position:absolute;inset:auto 0 0 0;height:3px;background:linear-gradient(90deg,var(--gold-hi),rgba(217,182,92,0))}
+  .head{max-width:900px;margin:0 auto;padding:30px 18px 34px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .head img{height:76px;width:auto;border-radius:10px;background:#faf6ea;padding:6px 10px;display:block}
+  .head .t{flex:1;min-width:220px}
+  .head .k{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-hi);font-weight:700}
+  .head h1{margin:6px 0 0;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:clamp(24px,4vw,32px);line-height:1.15;color:#fff;text-wrap:balance}
+  .back{color:var(--gold-soft);text-decoration:none;font-size:13px;font-weight:600;border:1px solid rgba(243,230,196,.35);padding:9px 15px;border-radius:999px;white-space:nowrap;transition:background .2s,border-color .2s}
+  .back:hover{background:rgba(243,230,196,.12);border-color:rgba(243,230,196,.6);color:#fff}
+
+  main{max-width:900px;margin:0 auto;padding:30px 18px 60px}
+  .intro{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 24px}
+  .pill{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .pill b{display:block;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:17px;color:var(--brown);margin-bottom:3px}
+  .pill span{font-size:13.5px;color:var(--muted);line-height:1.5;display:block}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:32px 30px;box-shadow:0 2px 14px rgba(46,36,24,.05)}
+  .lead{font-size:16.5px;margin:0 0 8px;text-wrap:pretty}
+  .meta{font-size:13px;color:var(--muted);margin:0}
+
+  nav.toc{margin:24px 0 6px;padding:16px 18px;background:#faf6ea;border:1px solid var(--line);border-radius:12px}
+  nav.toc b{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  nav.toc ol{margin:10px 0 0;padding-left:20px;columns:2;column-gap:30px;font-size:14px}
+  nav.toc li{break-inside:avoid;margin:3px 0}
+  nav.toc a{color:var(--green);text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+
+  h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:21px;color:var(--brown);margin:40px 0 12px;padding-top:22px;border-top:1px solid var(--line);scroll-margin-top:14px;display:flex;align-items:baseline;gap:10px}
+  h2 .n{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--gold);background:#fbf3e0;border:1px solid #ecd9a8;border-radius:999px;padding:2px 9px;flex-shrink:0;position:relative;top:-2px}
+  h3{font-size:15.5px;margin:18px 0 6px;color:var(--brown)}
+  p{margin:0 0 12px;text-wrap:pretty}
+  ul{margin:0 0 12px;padding-left:22px}
+  li{margin:5px 0}
+
+  .box{background:var(--green-soft);border:1px solid #c9dccb;border-radius:12px;padding:15px 18px;margin:14px 0}
+  .box.gold{background:#fbf3e0;border-color:#ecd9a8}
+  .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0 16px;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;min-width:540px;font-size:14px}
+  th,td{text-align:left;vertical-align:top;padding:11px 13px;border-bottom:1px solid var(--line)}
+  th{background:#faf6ea;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+  tr:last-child td{border-bottom:none}
+  code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:#f3ecdb;padding:1px 6px;border-radius:5px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .tag.tec{background:var(--green-soft);color:var(--green)}
+  .tag.ext{background:#fbf3e0;color:#8a6420}
+
+  .consent{margin:18px 0 6px;padding:20px;border-radius:14px;background:var(--forest);color:#EAE3D2;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .consent p{margin:0;font-size:14px}
+  .consent strong{color:var(--gold-hi)}
+  .consent .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .consent button{font:600 13px 'DM Sans',sans-serif;padding:11px 16px;border-radius:999px;cursor:pointer;transition:filter .2s}
+  .consent button:hover{filter:brightness(1.1)}
+  .consent .ghost{background:transparent;color:#EAE3D2;border:1px solid rgba(217,182,92,.5)}
+  .consent .solid{background:var(--gold-hi);color:var(--forest);border:none}
+
+  footer{max-width:900px;margin:0 auto;padding:0 18px 44px;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.7}
+  @media (max-width:640px){
+    body{font-size:15px}
+    .card{padding:22px 18px;border-radius:14px}
+    nav.toc ol{columns:1}
+    .head img{height:60px}
+  }
+  @media print{ header{background:none;color:#000} header::after{display:none} .head h1{color:#000} .back,nav.toc,.consent{display:none} body{background:#fff} .card,.pill{border:none;box-shadow:none} }
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <img src="logo.jpg" alt="Scuola Faunistica Venatoria">
+    <div class="t">
+      <div class="k">Sito della scuola</div>
+      <h1>Informativa privacy e cookie</h1>
+    </div>
+    <a class="back" href="index.html">← Torna al sito</a>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <div class="pill"><b>Nessuna profilazione</b><span>Niente pubblicità, niente statistiche, niente tracciamento.</span></div>
+    <div class="pill"><b>Solo cookie tecnici</b><span>La mappa si carica soltanto se lo scegli tu.</span></div>
+    <div class="pill"><b>Recensioni moderate</b><span>Pubblicate solo dopo approvazione, anche con un nome di fantasia.</span></div>
+  </div>
+
+  <div class="card">
+    <p class="lead">Questa informativa spiega quali dati personali tratta il <b>sito della Scuola Faunistica Venatoria</b>, perché, per quanto tempo e quali diritti hai. È resa ai sensi degli artt. 13 e 14 del Regolamento (UE) 2016/679 («GDPR»).</p>
+    <p class="meta">In vigore dall'8 ottobre 2026.</p>
+
+    <nav class="toc" aria-label="Indice">
+      <b>Indice</b>
+      <ol>
+        <li><a href="#titolare">Titolare del trattamento</a></li>
+        <li><a href="#dati">Quali dati trattiamo</a></li>
+        <li><a href="#finalita">Perché li trattiamo</a></li>
+        <li><a href="#recensioni">Le recensioni</a></li>
+        <li><a href="#destinatari">Chi può ricevere i dati</a></li>
+        <li><a href="#estero">Trasferimenti fuori dall'UE</a></li>
+        <li><a href="#conservazione">Per quanto tempo</a></li>
+        <li><a href="#cookie">Cookie e memoria del browser</a></li>
+        <li><a href="#collegati">Servizi collegati</a></li>
+        <li><a href="#diritti">I tuoi diritti</a></li>
+        <li><a href="#modifiche">Modifiche</a></li>
+      </ol>
+    </nav>
+
+    <h2 id="titolare"><span class="n">01</span>Titolare del trattamento</h2>
+    <p><b>Rudy Collodet</b> – Scuola Faunistica Venatoria<br>
+    Via Cal Resana 24 – 31028 Vazzola (TV) · P.IVA 05459010269<br>
+    Email: <a href="mailto:scuolafaunisticavenatoria@gmail.com">scuolafaunisticavenatoria@gmail.com</a> · Telefono: <a href="tel:+393331697875">333 169 7875</a></p>
+
+    <h2 id="dati"><span class="n">02</span>Quali dati trattiamo</h2>
+    <h3>Recensioni</h3>
+    <ul>
+      <li>nome (anche di fantasia), titolo, testo della recensione e corso frequentato, che scegli di inviare con il modulo recensioni.</li>
+    </ul>
+    <h3>Richieste di contatto</h3>
+    <ul>
+      <li>i dati che ci comunichi scrivendo via email o telefonando: nome, recapiti e contenuto della richiesta.</li>
+    </ul>
+    <h3>Iscrizione ai corsi</h3>
+    <ul>
+      <li>il pulsante «Iscriviti ai corsi» apre il modulo di iscrizione, che raccoglie dati anagrafici, residenza, codice fiscale, email, telefono e corso scelto. I dati vengono registrati nel gestionale riservato della segreteria.</li>
+    </ul>
+    <h3>Dati tecnici</h3>
+    <ul>
+      <li>indirizzo IP e informazioni tecniche di collegamento, trattati automaticamente dal fornitore che ospita il sito per farlo funzionare e proteggerlo.</li>
+    </ul>
+    <p>Il sito non usa strumenti di analisi delle visite e non chiede dati «particolari» (per esempio sulla salute). Ti chiediamo di non inserirli nelle recensioni.</p>
+
+    <h2 id="finalita"><span class="n">03</span>Perché li trattiamo e su quale base</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Finalità</th><th>Base giuridica (art. 6 GDPR)</th></tr></thead>
+      <tbody>
+        <tr><td>Gestire l'iscrizione ai corsi e i rapporti con lo studente</td><td>Esecuzione del contratto o di misure precontrattuali — lett. b</td></tr>
+        <tr><td>Adempimenti fiscali, contabili e obblighi verso gli enti competenti</td><td>Obbligo di legge — lett. c</td></tr>
+        <tr><td>Pubblicare le recensioni che scegli di inviarci</td><td>Consenso — lett. a, revocabile in qualsiasi momento</td></tr>
+        <tr><td>Rispondere alle richieste di contatto</td><td>Esecuzione di misure precontrattuali — lett. b, oppure legittimo interesse — lett. f</td></tr>
+        <tr><td>Far funzionare il sito e proteggerlo da abusi</td><td>Legittimo interesse del titolare — lett. f</td></tr>
+      </tbody>
+    </table></div>
+    <p>I dati <b>non</b> sono usati per profilazione, pubblicità o decisioni automatizzate e <b>non</b> sono venduti o ceduti a terzi per loro finalità.</p>
+
+    <h2 id="recensioni"><span class="n">04</span>Le recensioni</h2>
+    <div class="box">Ogni recensione viene letta dalla segreteria prima di comparire sul sito. Quelle pubblicate sono visibili a tutti con il nome che hai indicato, il titolo, il testo e il corso. Puoi firmarti con un nome di fantasia o con le sole iniziali.</div>
+    <p>Puoi chiedere in qualsiasi momento la rimozione della tua recensione scrivendo a <a href="mailto:scuolafaunisticavenatoria@gmail.com">scuolafaunisticavenatoria@gmail.com</a>.</p>
+
+    <h2 id="destinatari"><span class="n">05</span>Chi può ricevere i dati</h2>
+    <p>I dati sono trattati dal titolare e da persone da lui autorizzate e tenute alla riservatezza. Per far funzionare il sito ci avvaliamo di fornitori che agiscono come <b>responsabili del trattamento</b>, vincolati da accordi conformi all'art. 28 GDPR:</p>
+    <div class="tw"><table>
+      <thead><tr><th>Fornitore</th><th>Servizio</th></tr></thead>
+      <tbody>
+        <tr><td>Vercel Inc.</td><td>pubblicazione (hosting) del sito e archivio delle immagini delle locandine</td></tr>
+        <tr><td>Upstash Inc.</td><td>database delle recensioni</td></tr>
+        <tr><td>Netlify Inc.</td><td>modulo di iscrizione online e gestionale riservato della segreteria</td></tr>
+        <tr><td>OpenStreetMap Foundation</td><td>mappa della sede, caricata solo con il tuo consenso: riceve i dati tecnici di collegamento come l'indirizzo IP</td></tr>
+        <tr><td>Google (Google Fonts)</td><td>caratteri tipografici del sito: riceve solo dati tecnici di collegamento come l'indirizzo IP</td></tr>
+      </tbody>
+    </table></div>
+    <p>I dati possono inoltre essere comunicati a consulenti (per esempio fiscali o legali) e ad autorità ed enti pubblici quando previsto dalla legge o dalla normativa venatoria.</p>
+
+    <h2 id="estero"><span class="n">06</span>Trasferimenti fuori dall'Unione Europea</h2>
+    <p>Alcuni fornitori (Vercel, Upstash, Netlify, Google) possono trattare dati negli Stati Uniti. Questi trasferimenti avvengono sulla base della decisione di adeguatezza della Commissione Europea relativa all'<b>EU-U.S. Data Privacy Framework</b> (10 luglio 2023), per i fornitori aderenti, e/o delle <b>clausole contrattuali standard</b> approvate dalla Commissione Europea. Puoi chiedere al titolare informazioni sulle garanzie adottate.</p>
+
+    <h2 id="conservazione"><span class="n">07</span>Per quanto tempo conserviamo i dati</h2>
+    <div class="tw"><table>
+      <thead><tr><th>Dati</th><th>Durata</th></tr></thead>
+      <tbody>
+        <tr><td>Recensioni pubblicate</td><td>finché resta pubblicata, o fino a una tua richiesta di rimozione</td></tr>
+        <tr><td>Recensioni non approvate</td><td>cancellate quando vengono rifiutate</td></tr>
+        <tr><td>Dati di iscrizione e amministrativi</td><td>per la durata del corso e poi 10 anni, come previsto dalla normativa fiscale e civilistica (art. 2220 c.c.)</td></tr>
+        <tr><td>Richieste di contatto</td><td>il tempo necessario a rispondere; se diventi studente, valgono i tempi dell'iscrizione</td></tr>
+        <tr><td>Dati tecnici di collegamento</td><td>i brevi periodi previsti dal fornitore di hosting per sicurezza e funzionamento</td></tr>
+      </tbody>
+    </table></div>
+    <p>Trascorsi questi periodi i dati vengono cancellati o resi anonimi.</p>
+
+    <h2 id="cookie"><span class="n">08</span>Cookie e memoria del browser</h2>
+    <p>Il sito <b>non</b> usa cookie di profilazione, pubblicitari o statistici. Usa la memoria del browser solo per quanto serve al funzionamento e carica la mappa esterna soltanto con il tuo consenso.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Nome</th><th>Tipo</th><th>A cosa serve</th><th>Durata</th></tr></thead>
+      <tbody>
+        <tr><td><code>sfv:cookie-consent</code></td><td><span class="tag tec">Tecnico</span></td><td>ricorda la tua scelta sui cookie, così il banner non ricompare</td><td>finché non la cancelli dal browser</td></tr>
+        <tr><td><code>sfv:*</code></td><td><span class="tag tec">Tecnico</span></td><td>memorie locali per mostrare correttamente la sezione News</td><td>finché non le cancelli dal browser</td></tr>
+        <tr><td>Mappa OpenStreetMap</td><td><span class="tag ext">Terze parti</span></td><td>mostra la posizione della sede nella sezione Contatti</td><td>caricata solo con «Accetta tutti» o «Attiva la mappa»</td></tr>
+        <tr><td>Google Fonts</td><td><span class="tag ext">Terze parti</span></td><td>carica i caratteri tipografici del sito; non imposta cookie</td><td>—</td></tr>
+      </tbody>
+    </table></div>
+    <p>Per gli strumenti tecnici non è richiesto il consenso. Puoi cambiare la tua scelta qui sotto, dal link «Preferenze cookie» in fondo al sito, oppure cancellando i dati del sito dalle impostazioni del browser.</p>
+    <div class="consent">
+      <p>Scelta attuale: <strong id="stato">—</strong></p>
+      <div class="btns">
+        <button type="button" class="ghost" data-c="necessary">Solo necessari</button>
+        <button type="button" class="solid" data-c="all">Accetta tutti</button>
+      </div>
+    </div>
+
+    <h2 id="collegati"><span class="n">09</span>Servizi collegati</h2>
+    <p>Dal sito puoi aprire servizi separati, ognuno con la propria informativa:</p>
+    <ul>
+      <li><b>Area Formativa</b>, la piattaforma e-learning dei corsi: <a href="privacy-piattaforma.html">informativa della piattaforma</a>;</li>
+      <li><b>Modulo di iscrizione</b> e <b>Area Riservata</b> della segreteria;</li>
+      <li><b>Quiz Caccia</b> per l'esercitazione all'esame;</li>
+      <li>siti delle aziende partner e di Cal Resana Outdoor.</li>
+    </ul>
+
+    <h2 id="diritti"><span class="n">10</span>I tuoi diritti</h2>
+    <p>In ogni momento puoi chiedere al titolare (artt. 15-22 GDPR):</p>
+    <ul>
+      <li>l'<b>accesso</b> ai tuoi dati e una copia degli stessi;</li>
+      <li>la <b>rettifica</b> dei dati inesatti o incompleti;</li>
+      <li>la <b>cancellazione</b>, salvo i dati che dobbiamo conservare per legge;</li>
+      <li>la <b>limitazione</b> del trattamento;</li>
+      <li>la <b>portabilità</b> dei dati che ci hai fornito, in un formato di uso comune;</li>
+      <li>di <b>opporti</b> ai trattamenti basati sul legittimo interesse;</li>
+      <li>di <b>revocare</b> il consenso, per esempio alla pubblicazione di una recensione, senza effetti sui trattamenti già effettuati.</li>
+    </ul>
+    <p>Scrivi a <a href="mailto:scuolafaunisticavenatoria@gmail.com">scuolafaunisticavenatoria@gmail.com</a>: ti risponderemo entro un mese. Se ritieni che il trattamento violi il GDPR puoi presentare reclamo al <b>Garante per la protezione dei dati personali</b> (<a href="https://www.garanteprivacy.it" target="_blank" rel="noopener">www.garanteprivacy.it</a>).</p>
+
+    <h2 id="modifiche"><span class="n">11</span>Modifiche a questa informativa</h2>
+    <p>Questa informativa può essere aggiornata, per esempio per cambiamenti del sito o della normativa. La versione in vigore è sempre pubblicata in questa pagina, con la relativa data.</p>
+  </div>
+</main>
+<footer>Scuola Faunistica Venatoria · Rudy Collodet · Via Cal Resana 24, 31028 Vazzola (TV) · P.IVA 05459010269<br><a href="mailto:scuolafaunisticavenatoria@gmail.com">scuolafaunisticavenatoria@gmail.com</a></footer>
+
+<script>
+(function(){
+  var KEY='sfv:cookie-consent', el=document.getElementById('stato');
+  function label(v){ return v==='all' ? 'tutti i contenuti attivi, mappa inclusa' : v==='necessary' ? 'solo cookie tecnici' : 'nessuna scelta effettuata'; }
+  function get(){ try{ return localStorage.getItem(KEY)||''; }catch(e){ return ''; } }
+  el.textContent=label(get());
+  document.querySelectorAll('.consent button').forEach(function(b){
+    b.addEventListener('click',function(){
+      try{ localStorage.setItem(KEY,b.getAttribute('data-c')); }catch(e){}
+      el.textContent=label(get());
+    });
+  });
+})();
+</script>
+</body>
+</html>
