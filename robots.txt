@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /Pannello%20Locandine.dc.html
+Disallow: /api/
+
+Sitemap: https://scuolafaunisticavenatoria.it/sitemap.xml
