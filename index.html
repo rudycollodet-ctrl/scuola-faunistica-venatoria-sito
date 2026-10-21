@@ -63,6 +63,7 @@
   @keyframes sfvShimmer{ 0%{background-position:0% 50%} 100%{background-position:200% 50%} }
   @keyframes sfvPulse{ 0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.35);opacity:.35} }
   image-slot{ --br:2px }
+  @media (max-width:760px), (pointer:coarse){ .sfv-qr{ display:none !important } }
 </style>
 <script src="sfv-config.js"></script>
 <script src="sfv-data.js"></script>
@@ -257,6 +258,63 @@
           <p style="font-size:13.5px;color:#B9C4AE">{{ c.desc }}</p>
         </div>
       </sc-for>
+    </div>
+  </section>
+
+  <!-- APP GRATUITE -->
+  <section id="app" style="background:#EAE3D2;padding:clamp(56px,8vw,96px) 5vw;scroll-margin-top:70px">
+    <div data-reveal style="display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:40px">
+      <div style="max-width:640px">
+        <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8A6F2E;margin-bottom:14px">Novità · Le app della scuola</p>
+        <h2 style="font-family:'Fraunces',serif;font-weight:600;line-height:1.08;font-size:clamp(28px,3.6vw,42px);color:#241E14">La scuola in tasca, <em style="font-style:italic;color:#4C7A2E">a caccia con te.</em></h2>
+        <p style="font-size:15.5px;color:#5c5444;margin-top:14px;max-width:54ch;text-wrap:pretty">Due app gratuite pensate da chi insegna caccia ogni giorno: scadenze di licenza, porto d'armi e assicurazione con promemoria, calendari venatori e strumenti di campo. Si installano sul telefono in pochi secondi, senza passare dagli store.</p>
+      </div>
+      <div class="sfv-qr" style="display:flex;align-items:center;gap:14px;background:#F3EFE4;border:1px solid rgba(36,30,20,.12);border-radius:6px;padding:12px 16px 12px 12px">
+        <img src="app-qr.png" alt="Codice QR per scaricare le app" width="96" height="96" style="width:96px;height:96px;display:block;border-radius:4px">
+        <p style="font-size:13px;color:#5c5444;line-height:1.45;max-width:17ch">Sei al computer? <b style="color:#241E14">Inquadra il codice</b> con il telefono.</p>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:18px">
+      <a data-reveal href="https://nuova-piattaforma-corsi-scuola-faun.vercel.app/montagna/" target="_blank" rel="noopener" style="flex:1 1 340px;min-height:440px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;border-radius:6px;overflow:hidden;color:#F3EFE4;background:linear-gradient(180deg,rgba(14,26,8,.08) 25%,rgba(14,26,8,.94) 100%),url(camosci-hero.webp) center/cover,#1F3814;box-shadow:0 30px 60px -34px rgba(22,41,13,.6);transition:transform .35s, box-shadow .35s" style-hover="transform:translateY(-5px);box-shadow:0 40px 70px -34px rgba(22,41,13,.75);color:#F3EFE4">
+        <span style="position:absolute;top:18px;left:18px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:#D9B65C;color:#16290D;padding:5px 10px;border-radius:2px;font-weight:500">Gratuita</span>
+        <div style="padding:clamp(22px,3vw,32px)">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+            <img src="app-montagna.png" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:15px;display:block;box-shadow:0 8px 20px rgba(0,0,0,.4)">
+            <div>
+              <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:clamp(24px,2.6vw,30px);line-height:1.05">SFV Montagna</h3>
+              <p style="font-size:13.5px;color:#C7D3B8;margin-top:3px">Zona Alpi · ungulati e tetraonidi</p>
+            </div>
+          </div>
+          <p style="font-size:14.5px;color:#DCE4D2;max-width:46ch;margin-bottom:16px;text-wrap:pretty">Calcolo della distanza di tiro reale con la tua carabina, schede di biometria, calendario del comprensorio alpino e tutte le tue scadenze sotto controllo.</p>
+          <span style="display:inline-flex;align-items:center;gap:9px;background:#D9B65C;color:#16290D;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:500;padding:13px 18px;border-radius:3px">Scarica SFV Montagna
+            <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10" stroke="currentColor" stroke-width="1.6"/></svg>
+          </span>
+        </div>
+      </a>
+
+      <a data-reveal data-reveal-delay="120" href="https://nuova-piattaforma-corsi-scuola-faun.vercel.app/pianura/" target="_blank" rel="noopener" style="flex:1 1 340px;min-height:440px;position:relative;display:flex;flex-direction:column;justify-content:flex-end;border-radius:6px;overflow:hidden;color:#F3EFE4;background:linear-gradient(180deg,rgba(14,26,8,.08) 25%,rgba(14,26,8,.94) 100%),url('https://commons.wikimedia.org/wiki/Special:FilePath/Common_pheasant_(Phasianus_colchicus)_male_Heligan.jpg?width=1100') center/cover,linear-gradient(135deg,#3A2E1F,#4C7A2E);box-shadow:0 30px 60px -34px rgba(22,41,13,.6);transition:transform .35s, box-shadow .35s" style-hover="transform:translateY(-5px);box-shadow:0 40px 70px -34px rgba(22,41,13,.75);color:#F3EFE4">
+        <span style="position:absolute;top:18px;left:18px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:#D9B65C;color:#16290D;padding:5px 10px;border-radius:2px;font-weight:500">Gratuita</span>
+        <div style="padding:clamp(22px,3vw,32px)">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+            <img src="app-pianura.png" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:15px;display:block;box-shadow:0 8px 20px rgba(0,0,0,.4)">
+            <div>
+              <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:clamp(24px,2.6vw,30px);line-height:1.05">SFV Pianura</h3>
+              <p style="font-size:13.5px;color:#C7D3B8;margin-top:3px">Pianura e collina · stanziale e migratoria</p>
+            </div>
+          </div>
+          <p style="font-size:14.5px;color:#DCE4D2;max-width:46ch;margin-bottom:16px;text-wrap:pretty">I calendari venatori di tutte le regioni sempre a portata di mano, con fagiano, lepre, starna, beccaccia e germano, e i promemoria per ogni scadenza.</p>
+          <span style="display:inline-flex;align-items:center;gap:9px;background:#D9B65C;color:#16290D;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.07em;text-transform:uppercase;font-weight:500;padding:13px 18px;border-radius:3px">Scarica SFV Pianura
+            <svg viewBox="0 0 16 16" fill="none" style="width:13px;height:13px"><path d="M8 2.5v8M4.5 7 8 10.5 11.5 7M3 13.5h10" stroke="currentColor" stroke-width="1.6"/></svg>
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <div data-reveal style="display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:24px;font-size:13.5px;color:#5c5444">
+      <span style="display:flex;align-items:center;gap:8px"><b style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4C7A2E">ANDROID</b> Apri con Chrome e tocca «Installa»</span>
+      <span style="display:flex;align-items:center;gap:8px"><b style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4C7A2E">IPHONE</b> Apri con Safari → Condividi → «Aggiungi alla schermata Home»</span>
+      <span>Un solo account per entrambe.</span>
     </div>
   </section>
 
@@ -456,6 +514,8 @@
           <a href="https://nuova-piattaforma-corsi-scuola-faun.vercel.app/" target="_blank" rel="noopener" style="display:block;font-size:13.5px;margin-bottom:9px;color:#9C917C;transition:color .2s" style-hover="color:#D9B65C">Area Formativa</a>
           <a href="https://database-scuola-faunistica-venatoria.netlify.app/" target="_blank" rel="noopener" onClick="{{ openGate }}" style="display:block;font-size:13.5px;margin-bottom:9px;color:#9C917C;transition:color .2s" style-hover="color:#D9B65C">Area Riservata</a>
           <a href="https://quizcacaccia-veneto-sfv-fidc.netlify.app/" target="_blank" rel="noopener" style="display:block;font-size:13.5px;margin-bottom:9px;color:#9C917C;transition:color .2s" style-hover="color:#D9B65C">Quiz Caccia 2026</a>
+          <a href="https://nuova-piattaforma-corsi-scuola-faun.vercel.app/montagna/" target="_blank" rel="noopener" style="display:block;font-size:13.5px;margin-bottom:9px;color:#9C917C;transition:color .2s" style-hover="color:#D9B65C">App SFV Montagna</a>
+          <a href="https://nuova-piattaforma-corsi-scuola-faun.vercel.app/pianura/" target="_blank" rel="noopener" style="display:block;font-size:13.5px;margin-bottom:9px;color:#9C917C;transition:color .2s" style-hover="color:#D9B65C">App SFV Pianura</a>
         </div>
         <div>
           <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B99646;margin-bottom:14px">Seguici</p>
@@ -876,6 +936,7 @@ class Component extends DCLogic {
         { href:'#chi-siamo', label:'Chi siamo' },
         { href:'#servizi', label:'Corsi' },
         { href:'#news', label:'News' },
+        { href:'#app', label:'App gratuite' },
         { href:'#testimonianze', label:'Allievi' },
         { href:'#contatti', label:'Contatti' }
       ],
@@ -977,6 +1038,104 @@ class Component extends DCLogic {
     };
   }
 }
+</script>
+<!-- POPUP APP GRATUITE (indipendente dal resto della pagina) -->
+<style>
+#sfvAppPop{position:fixed;inset:0;z-index:180;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(10,17,6,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);opacity:0;transition:opacity .35s ease;font-family:'Work Sans',sans-serif}
+#sfvAppPop.on{opacity:1}
+#sfvAppPop .box{position:relative;width:100%;max-width:560px;max-height:calc(100dvh - 32px);overflow-y:auto;background:#16290D;color:#F3EFE4;border:1px solid rgba(217,182,92,.3);border-radius:8px;box-shadow:0 50px 100px -40px rgba(0,0,0,.85);transform:translateY(18px) scale(.97);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+#sfvAppPop.on .box{transform:none}
+#sfvAppPop .foto{display:grid;grid-template-columns:1fr 1fr;height:190px;position:relative}
+#sfvAppPop .foto div{background-size:cover;background-position:center}
+#sfvAppPop .foto::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(22,41,13,0) 35%,#16290D 100%)}
+#sfvAppPop .x{position:absolute;top:10px;right:10px;z-index:2;width:38px;height:38px;border-radius:50%;border:none;background:rgba(10,17,6,.55);color:#F3EFE4;font-size:24px;line-height:1;cursor:pointer}
+#sfvAppPop .x:hover{background:rgba(10,17,6,.8)}
+#sfvAppPop .corpo{padding:0 clamp(20px,5vw,34px) clamp(22px,4vw,30px);margin-top:-34px;position:relative;z-index:1;text-align:center}
+#sfvAppPop .badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;background:#D9B65C;color:#16290D;padding:5px 11px;border-radius:2px;font-weight:500}
+#sfvAppPop h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(25px,6vw,32px);line-height:1.08;margin:14px 0 10px;text-wrap:balance}
+#sfvAppPop h2 em{font-style:italic;color:#D9B65C}
+#sfvAppPop p.t{color:#B9C4AE;font-size:14.5px;line-height:1.55;max-width:44ch;margin:0 auto 20px;text-wrap:pretty}
+#sfvAppPop .app{display:flex;align-items:center;gap:13px;text-align:left;background:#1F3814;border:1px solid rgba(217,182,92,.2);border-radius:6px;padding:12px 14px;color:#F3EFE4;text-decoration:none;margin-bottom:10px;transition:background .2s,border-color .2s,transform .2s}
+#sfvAppPop .app:hover{background:#26451A;border-color:rgba(217,182,92,.55);transform:translateY(-1px);color:#F3EFE4}
+#sfvAppPop .app img{width:52px;height:52px;border-radius:12px;flex-shrink:0;display:block}
+#sfvAppPop .app b{display:block;font-family:'Fraunces',serif;font-weight:600;font-size:18px;line-height:1.15}
+#sfvAppPop .app small{display:block;color:#9FB08F;font-size:12.5px;margin-top:2px}
+#sfvAppPop .app .vai{margin-left:auto;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:#D9B65C;color:#16290D;padding:9px 12px;border-radius:3px;font-weight:500}
+#sfvAppPop .qr{display:none;align-items:center;justify-content:center;gap:12px;margin-top:14px;color:#9FB08F;font-size:12.5px}
+#sfvAppPop .qr img{width:70px;height:70px;border-radius:4px;background:#fff}
+@media (min-width:860px) and (pointer:fine){#sfvAppPop .qr{display:flex}}
+#sfvAppPop .dopo{margin-top:14px;background:none;border:none;color:#7f8f72;font-size:13px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-family:inherit}
+#sfvAppPop .dopo:hover{color:#D9B65C}
+@media (max-width:420px){#sfvAppPop .foto{height:150px}#sfvAppPop .app .vai{padding:8px 9px;font-size:10px}}
+@media (prefers-reduced-motion:reduce){#sfvAppPop,#sfvAppPop .box{transition:none}}
+</style>
+<script>
+(function(){
+  var CHIAVE='sfv:app-popup', BASE='https://nuova-piattaforma-corsi-scuola-faun.vercel.app/';
+  function leggi(){ try{ return JSON.parse(localStorage.getItem(CHIAVE)||'{}'); }catch(e){ return {}; } }
+  function scrivi(v){ try{ localStorage.setItem(CHIAVE, JSON.stringify(v)); }catch(e){} }
+  var st=leggi();
+  if (st.scaricata) return;                                   // ha già aperto un'app: non la disturbiamo più
+  if (st.chiusa && Date.now()-st.chiusa < 10*864e5) return;   // chiusa da meno di 10 giorni
+  if (/^#(loc-|app)/.test(location.hash)) return;             // arriva da un link diretto
+  var forza = /[?&]app-popup/.test(location.search);          // per provarla: ?app-popup
+
+  function mostra(){
+    if (document.getElementById('sfvAppPop')) return;
+    var d=document.createElement('div');
+    d.id='sfvAppPop'; d.setAttribute('role','dialog'); d.setAttribute('aria-modal','true'); d.setAttribute('aria-labelledby','sfvAppPopT');
+    d.innerHTML=
+      '<div class="box">'+
+        '<button class="x" type="button" aria-label="Chiudi">×</button>'+
+        '<div class="foto" aria-hidden="true">'+
+          '<div style="background-image:url(camosci-hero.webp),linear-gradient(135deg,#1F3814,#4C7A2E)"></div>'+
+          '<div style="background-image:url(\'https://commons.wikimedia.org/wiki/Special:FilePath/Common_pheasant_(Phasianus_colchicus)_male_Heligan.jpg?width=600\'),linear-gradient(135deg,#3A2E1F,#4C7A2E)"></div>'+
+        '</div>'+
+        '<div class="corpo">'+
+          '<span class="badge">Novità · Gratuite</span>'+
+          '<h2 id="sfvAppPopT">Le app della Scuola, <em>a caccia con te.</em></h2>'+
+          '<p class="t">Scadenze con promemoria, calendari venatori, biometria e distanza di tiro: tutto sul tuo telefono, senza store.</p>'+
+          '<a class="app" href="'+BASE+'montagna/" target="_blank" rel="noopener" data-app>'+
+            '<img src="app-montagna.png" alt=""><span><b>SFV Montagna</b><small>Zona Alpi · ungulati e tetraonidi</small></span><span class="vai">Scarica</span></a>'+
+          '<a class="app" href="'+BASE+'pianura/" target="_blank" rel="noopener" data-app>'+
+            '<img src="app-pianura.png" alt=""><span><b>SFV Pianura</b><small>Stanziale, migratoria e calendari</small></span><span class="vai">Scarica</span></a>'+
+          '<div class="qr"><img src="app-qr.png" alt="Codice QR delle app"><span>Sei al computer?<br>Inquadra il codice con il telefono.</span></div>'+
+          '<button class="dopo" type="button">Più tardi</button>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(d);
+    var prima=document.activeElement;
+    function chiudi(salva){
+      if (salva!==false) scrivi({chiusa:Date.now()});
+      d.classList.remove('on'); document.removeEventListener('keydown',tasto);
+      setTimeout(function(){ d.remove(); if (prima && prima.focus) try{prima.focus();}catch(e){} },350);
+    }
+    function tasto(e){ if (e.key==='Escape') chiudi(); }
+    d.addEventListener('click',function(e){ if (e.target===d) chiudi(); });
+    d.querySelector('.x').onclick=function(){ chiudi(); };
+    d.querySelector('.dopo').onclick=function(){ chiudi(); };
+    Array.prototype.forEach.call(d.querySelectorAll('[data-app]'),function(a){
+      a.addEventListener('click',function(){ scrivi({scaricata:Date.now()}); setTimeout(function(){ chiudi(false); },200); });
+    });
+    document.addEventListener('keydown',tasto);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ d.classList.add('on'); d.querySelector('.app').focus({preventScroll:true}); }); });
+  }
+
+  // Compare dopo qualche secondo, quando il visitatore ha già visto la pagina,
+  // oppure prima se scorre oltre metà schermo.
+  var fatto=false;
+  function via(){ if (fatto) return; fatto=true; window.removeEventListener('scroll',suScroll); mostra(); }
+  function suScroll(){ if (window.scrollY > window.innerHeight*0.6) setTimeout(via,600); }
+  window.addEventListener('load',function(){
+    setTimeout(via, forza?300:4500);
+    window.addEventListener('scroll',suScroll,{passive:true});
+  });
+  // Si possono collegare altri pulsanti: href="#apri-app"
+  document.addEventListener('click',function(e){
+    var a=e.target.closest && e.target.closest('a[href="#apri-app"]');
+    if (a){ e.preventDefault(); fatto=true; mostra(); }
+  });
+})();
 </script>
 </body>
 </html>
