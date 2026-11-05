@@ -26,7 +26,7 @@
     return (window.SFV_API_BASE || '').replace(/\/+$/, '');
   }
   function token() {
-    return localStorage.getItem(LS_TOKEN) || window.SFV_ADMIN_TOKEN || '';
+    return sessionStorage.getItem(LS_TOKEN) || '';
   }
   function isRemote() { return !!base(); }
 
@@ -230,7 +230,20 @@
     return true;
   }
 
-  function setToken(t) { localStorage.setItem(LS_TOKEN, t || ''); }
+  async function verifyPassword(password) {
+    if (!base()) return false;
+    var r = await fetch(base() + '/api/verifica', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: password })
+    });
+    return r.ok;
+  }
+
+  function setToken(t) {
+    localStorage.removeItem(LS_TOKEN); // pulisce la copia delle vecchie versioni
+    sessionStorage.setItem(LS_TOKEN, t || '');
+  }
   function getToken() { return token(); }
 
   window.SFVData = {
@@ -242,6 +255,7 @@
     submitReview: submitReview,
     saveReviews: saveReviews,
     isRemote: isRemote,
+    verifyPassword: verifyPassword,
     setToken: setToken,
     getToken: getToken,
     newId: uid

@@ -703,10 +703,6 @@ class Component extends DCLogic {
 
   gestionaleUrl = 'https://database-scuola-faunistica-venatoria.netlify.app/';
 
-  gatePassword(){
-    return (window.SFV_GESTIONALE_PWD || window.SFV_ADMIN_TOKEN || 'cambiami');
-  }
-
   setConsent(v){
     try { localStorage.setItem('sfv:cookie-consent', v); } catch(e){}
     this.setState({ consent: v, prefsOpen: false });
@@ -998,13 +994,19 @@ class Component extends DCLogic {
       },
       closeGate: () => this.setState({ gateOpen: false, gateErr: false }),
       changeGatePwd: (ev) => this.setState({ gatePwd: ev.target.value, gateErr: false }),
-      submitGate: (ev) => {
+      submitGate: async (ev) => {
         ev.preventDefault();
-        if (this.state.gatePwd.trim() === this.gatePassword()) {
+        // La scheda si apre subito: dopo l'attesa del server il browser la bloccherebbe.
+        const w = window.open('', '_blank');
+        let ok = false;
+        try { ok = !!window.SFVData && await window.SFVData.verifyPassword(this.state.gatePwd.trim()); } catch(e){}
+        if (ok) {
           const url = this.state.gateTarget === 'pannello' ? 'Pannello Locandine.dc.html' : this.gestionaleUrl;
-          window.open(url, '_blank', 'noopener');
+          if (w) { w.opener = null; w.location.href = url; }
+          else { window.open(url, '_blank', 'noopener'); }
           this.setState({ gateOpen: false, gatePwd: '', gateErr: false });
         } else {
+          if (w) w.close();
           this.setState({ gateErr: true });
         }
       },

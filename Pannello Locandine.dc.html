@@ -316,14 +316,14 @@ class Component extends DCLogic {
     }
   }
 
-  doLogin = (ev) => {
+  doLogin = async (ev) => {
     ev.preventDefault();
     const val = (this.pwRef.current && this.pwRef.current.value) || '';
-    const expected = window.SFV_ADMIN_TOKEN || '';
     if (!val){ this.setState({ loginError: 'Inserisci la password.' }); return; }
-    // In modalità remota la password vera è verificata dal server al salvataggio;
-    // qui controlliamo contro il token configurato per l'accesso al pannello.
-    if (expected && val !== expected){
+    let ok = false;
+    try { ok = await window.SFVData.verifyPassword(val); }
+    catch(e){ this.setState({ loginError: 'Controllo non riuscito: verifica la connessione e riprova.' }); return; }
+    if (!ok){
       this.setState({ loginError: 'Password non corretta.' });
       return;
     }
