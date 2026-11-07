@@ -66,6 +66,16 @@
       "permanent": true
     },
     {
+      "source": "/en-us",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en-US/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/en-US/:path*",
       "destination": "/",
       "permanent": true
