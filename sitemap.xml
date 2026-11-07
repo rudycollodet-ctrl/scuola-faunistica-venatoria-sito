@@ -1,5 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://scuolafaunisticavenatoria.it/</loc><lastmod>2026-10-14</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://scuolafaunisticavenatoria.it/privacy.html</loc><lastmod>2026-10-13</lastmod><changefreq>yearly</changefreq><priority>0.2</priority></url>
+<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Home: corsi, chi siamo, app, news, testimonianze, contatti -->
+  <url>
+    <loc>https://scuolafaunisticavenatoria.it/</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://scuolafaunisticavenatoria.it/camosci-hero.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://scuolafaunisticavenatoria.it/logo.jpg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://scuolafaunisticavenatoria.it/docente.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://scuolafaunisticavenatoria.it/camoscio-collezione.jpeg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://scuolafaunisticavenatoria.it/app-montagna.png</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://scuolafaunisticavenatoria.it/app-pianura.png</image:loc>
+    </image:image>
+  </url>
+
+  <!-- Privacy e cookie -->
+  <url>
+    <loc>https://scuolafaunisticavenatoria.it/privacy.html</loc>
+    <lastmod>2026-11-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+
 </urlset>

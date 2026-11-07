@@ -1,16 +1,109 @@
 {
   "redirects": [
-    { "source": "/index.html", "destination": "/", "permanent": true },
-    { "source": "/home", "destination": "/", "permanent": true },
-    { "source": "/chi-siamo", "destination": "/#chi-siamo", "permanent": true },
-    { "source": "/contatti", "destination": "/#contatti", "permanent": true },
-    { "source": "/corsi", "destination": "/#servizi", "permanent": true },
-    { "source": "/fauna", "destination": "/#servizi", "permanent": true },
-    { "source": "/biometria(.*)", "destination": "/#servizi", "permanent": true },
-    { "source": "/blog", "destination": "/#news", "permanent": true },
-    { "source": "/blog-detail", "destination": "/#news", "permanent": true },
-    { "source": "/articolo", "destination": "/#news", "permanent": true },
-    { "source": "/news", "destination": "/#news", "permanent": true },
-    { "source": "/galleria", "destination": "/", "permanent": true }
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/chi-siamo",
+      "destination": "/#chi-siamo",
+      "permanent": true
+    },
+    {
+      "source": "/contatti",
+      "destination": "/#contatti",
+      "permanent": true
+    },
+    {
+      "source": "/corsi",
+      "destination": "/#servizi",
+      "permanent": true
+    },
+    {
+      "source": "/fauna",
+      "destination": "/#servizi",
+      "permanent": true
+    },
+    {
+      "source": "/biometria(.*)",
+      "destination": "/#servizi",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/#news",
+      "permanent": true
+    },
+    {
+      "source": "/blog-detail",
+      "destination": "/#news",
+      "permanent": true
+    },
+    {
+      "source": "/articolo",
+      "destination": "/#news",
+      "permanent": true
+    },
+    {
+      "source": "/news",
+      "destination": "/#news",
+      "permanent": true
+    },
+    {
+      "source": "/galleria",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en-US",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en-US/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/en-us/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/product-detail",
+      "destination": "/#servizi",
+      "permanent": true
+    },
+    {
+      "source": "/fauna-selvatica",
+      "destination": "/#servizi",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/sitemap.xsl",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/xsl; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        }
+      ]
+    }
   ]
 }
