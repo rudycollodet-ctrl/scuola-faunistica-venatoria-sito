@@ -34,6 +34,37 @@
     return 'loc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
   }
 
+  // Locandine fisse: restano sempre visibili sul sito, anche se l'archivio
+  // del pannello non e' disponibile. Le immagini stanno nella cartella /locandine.
+  var LOCANDINE_FISSE = [
+    { id: 'corsi-caccia-veneto', ordine: -3, stato: 'Iscrizioni aperte',
+      titolo: 'Corsi di caccia — Licenza',
+      data: '', sede: 'Vittorio Veneto · Valdobbiadene · Tezze di Piave',
+      descrizione: "Preparazione completa per l'esame di caccia: lezioni teoriche, prove pratiche, materiale didattico, simulazioni d'esame, biologia, normative e riconoscimento della fauna.",
+      link: 'https://iscrizione-corsi-sfv-2026-nuovo.netlify.app/',
+      immagine: 'locandine/corsi-caccia-veneto-2027.jpg' },
+    { id: 'corso-zona-alpi', ordine: -2, stato: 'Iscrizioni aperte',
+      titolo: 'Corso abilitazione Zona faunistica delle Alpi',
+      data: '', sede: 'Tezze di Piave · Valdobbiadene · Vittorio Veneto',
+      descrizione: "Abilitazione alla caccia in Zona faunistica delle Alpi, valida per tutto il Veneto: teoria in aula, pratica sul territorio, docenti qualificati e supporto per tutto il percorso.",
+      link: 'https://iscrizione-corsi-sfv-2026-nuovo.netlify.app/',
+      immagine: 'locandine/manifesto-corso-faunistico.jpg' },
+    { id: 'piattaforma-e-learning', ordine: -1, stato: 'Novità',
+      titolo: 'Piattaforma e-learning',
+      data: 'Dirette online: Licenza il lunedì · Zona Alpi il mercoledì', sede: 'Online',
+      descrizione: "Corsi completi a norma ISPRA: videolezioni per tutte le materie, quiz ufficiali per provincia, chat con la scuola e attestati verificabili. In autonomia o a supporto dei corsi in presenza.",
+      link: 'https://nuova-piattaforma-corsi-scuola-faun.vercel.app/',
+      immagine: 'locandine/locandina-sfv.jpg' }
+  ];
+
+  function conFisse(items) {
+    var ids = {};
+    (items || []).forEach(function (x) { if (x && x.id) ids[x.id] = true; });
+    return LOCANDINE_FISSE.filter(function (x) { return !ids[x.id]; })
+      .map(function (x) { return Object.assign({}, x); })
+      .concat(sortItems(items));
+  }
+
   function sortItems(arr) {
     return (arr || []).slice().sort(function (a, b) {
       return (a.ordine == null ? 999 : a.ordine) - (b.ordine == null ? 999 : b.ordine);
@@ -49,7 +80,8 @@
         var r = await fetch(base() + '/api/locandine' + (strict ? '?fresco=1' : ''), { cache: 'no-store' });
         if (r.ok) {
           var data = await r.json();
-          return sortItems(Array.isArray(data) ? data : []);
+          data = Array.isArray(data) ? data : [];
+          return strict ? sortItems(data) : conFisse(data);
         }
         if (strict) {
           var det = '';
@@ -61,10 +93,12 @@
         /* sito pubblico: cade in demo sotto */
       }
     }
+    var locali = [];
     try {
       var raw = localStorage.getItem(LS_DATA);
-      return sortItems(raw ? JSON.parse(raw) : []);
-    } catch (e) { return []; }
+      locali = raw ? JSON.parse(raw) : [];
+    } catch (e) { locali = []; }
+    return strict ? sortItems(locali) : conFisse(locali);
   }
 
   async function save(items) {
