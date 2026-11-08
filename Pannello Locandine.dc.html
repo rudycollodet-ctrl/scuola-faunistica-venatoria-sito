@@ -259,7 +259,9 @@ class Component extends DCLogic {
     errMsg: '',
     tab: 'loc',
     reviews: [],
-    revError: ''
+    revError: '',
+    loadFailed: false,
+    revLoadFailed: false
   };
 
   constructor(props){
@@ -286,10 +288,10 @@ class Component extends DCLogic {
   async fetchItems(){
     this.setState({ loading: true });
     try {
-      const items = await window.SFVData.list();
-      this.setState({ items: items || [], loading: false, dirty: false });
+      const items = await window.SFVData.list({ strict: true });
+      this.setState({ items: items || [], loading: false, dirty: false, loadFailed: false, errMsg: '' });
     } catch(e){
-      this.setState({ items: [], loading: false, errMsg: 'Impossibile caricare i dati: ' + e.message });
+      this.setState({ items: [], loading: false, loadFailed: true, errMsg: 'Impossibile caricare le locandine: ' + e.message + ' Il salvataggio è bloccato per non cancellare quelle esistenti.' });
     }
     this.fetchReviews();
   }
@@ -297,13 +299,17 @@ class Component extends DCLogic {
   async fetchReviews(){
     try {
       const r = await window.SFVData.listReviewsAll();
-      this.setState({ reviews: r || [], revError: '' });
+      this.setState({ reviews: r || [], revError: '', revLoadFailed: false });
     } catch(e){
-      this.setState({ revError: 'Impossibile caricare le recensioni: ' + e.message });
+      this.setState({ revLoadFailed: true, revError: 'Impossibile caricare le recensioni: ' + e.message });
     }
   }
 
   async moderateReview(id, action){
+    if (this.state.revLoadFailed){
+      this.setState({ revError: 'Operazione bloccata: le recensioni non sono state caricate dal server. Ricarica la pagina più tardi.' });
+      return;
+    }
     const next = this.state.reviews
       .map(r => r.id === id ? { ...r, stato: 'approved' } : r)
       .filter(r => !(action === 'reject' && r.id === id));
@@ -412,6 +418,10 @@ class Component extends DCLogic {
 
   saveAll = async () => {
     if (this.state.saving) return;
+    if (this.state.loadFailed){
+      this.setState({ errMsg: 'Salvataggio bloccato: le locandine esistenti non sono state caricate dal server. Ricarica la pagina quando il server torna disponibile.' });
+      return;
+    }
     this.setState({ saving: true, saveMsg: '', errMsg: '' });
     try {
       const clean = this.state.items.map(it => { const c = Object.assign({}, it); delete c.uploading; return c; });

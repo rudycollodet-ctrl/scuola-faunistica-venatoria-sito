@@ -40,15 +40,26 @@
     });
   }
 
-  async function list() {
+  // opts.strict (pannello): se il server non risponde lancia un errore invece
+  // di restituire un elenco vuoto, cosi' non si rischia di salvare "zero locandine".
+  async function list(opts) {
+    var strict = !!(opts && opts.strict);
     if (isRemote()) {
       try {
-        var r = await fetch(base() + '/api/locandine', { cache: 'no-store' });
+        var r = await fetch(base() + '/api/locandine' + (strict ? '?fresco=1' : ''), { cache: 'no-store' });
         if (r.ok) {
           var data = await r.json();
           return sortItems(Array.isArray(data) ? data : []);
         }
-      } catch (e) { /* cade in demo sotto */ }
+        if (strict) {
+          var det = '';
+          try { var j = await r.json(); det = j && j.error ? j.error : ''; } catch (e2) {}
+          throw new Error(det || ('Server non disponibile (' + r.status + ').'));
+        }
+      } catch (e) {
+        if (strict) throw e;
+        /* sito pubblico: cade in demo sotto */
+      }
     }
     try {
       var raw = localStorage.getItem(LS_DATA);
@@ -177,7 +188,9 @@
       });
       if (r.status === 401 || r.status === 403) throw new Error('Password non valida.');
       if (r.ok) { var d = await r.json(); return sortByDateDesc(Array.isArray(d) ? d : []); }
-      throw new Error('Caricamento non riuscito.');
+      var det2 = '';
+      try { var j2 = await r.json(); det2 = j2 && j2.error ? j2.error : ''; } catch (e3) {}
+      throw new Error(det2 || 'Caricamento non riuscito.');
     }
     try {
       var raw = localStorage.getItem(LS_REVIEWS);
