@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Gestione locandine – Scuola Faunistica Venatoria</title>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -310,12 +314,17 @@ class Component extends DCLogic {
       this.setState({ revError: 'Operazione bloccata: le recensioni non sono state caricate dal server. Ricarica la pagina più tardi.' });
       return;
     }
-    const next = this.state.reviews
-      .map(r => r.id === id ? { ...r, stato: 'approved' } : r)
+    const apply = (list) => list
+      .map(r => r.id === id && action !== 'reject' ? { ...r, stato: 'approved' } : r)
       .filter(r => !(action === 'reject' && r.id === id));
-    this.setState({ reviews: next, revError: '' });
+    this.setState({ reviews: apply(this.state.reviews), revError: '' });
     try {
+      // Rilegge l'elenco dal server prima di salvare: cosi' una recensione
+      // arrivata mentre il pannello era aperto non viene sovrascritta.
+      const fresh = await window.SFVData.listReviewsAll();
+      const next = apply(fresh || []);
       await window.SFVData.saveReviews(next);
+      this.setState({ reviews: next });
     } catch(e){
       this.setState({ revError: 'Salvataggio non riuscito: ' + e.message });
       this.fetchReviews();

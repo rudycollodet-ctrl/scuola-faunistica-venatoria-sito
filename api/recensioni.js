@@ -12,6 +12,23 @@ import { leggiElenco, scriviElenco, isAdmin, cachePubblica, rispostaErrore } fro
 
 const PATH = 'data/recensioni.json';
 
+// Anti-spam: ogni invio scrive sull'archivio, e le scritture gratuite sono limitate.
+const MAX_IN_ATTESA = 60;          // oltre questo numero di recensioni da verificare si rifiutano i nuovi invii
+const MAX_PER_INDIRIZZO = 3;       // invii consentiti dallo stesso indirizzo...
+const FINESTRA = 10 * 60 * 1000;   // ...ogni dieci minuti
+const invii = new Map();
+
+function troppiInvii(req) {
+  const ip = ((req.headers['x-forwarded-for'] || '') + '').split(',')[0].trim() || 'sconosciuto';
+  const ora = Date.now();
+  const recenti = (invii.get(ip) || []).filter((t) => ora - t < FINESTRA);
+  if (recenti.length >= MAX_PER_INDIRIZZO) { invii.set(ip, recenti); return true; }
+  recenti.push(ora);
+  invii.set(ip, recenti);
+  if (invii.size > 500) invii.clear();
+  return false;
+}
+
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
@@ -48,9 +65,13 @@ export default async function handler(req, res) {
     const nome = ((body && body.nome) || '').toString().slice(0, 120).trim();
     const testo = ((body && body.testo) || '').toString().slice(0, 4000).trim();
     if (!nome || !testo) return res.status(400).json({ error: 'Nome e testo obbligatori' });
+    if (troppiInvii(req)) return res.status(429).json({ error: 'Troppi invii ravvicinati. Riprova tra qualche minuto.' });
     try {
       // Lettura fresca: se fallisce ci fermiamo, senza toccare l'archivio.
       const all = await leggiElenco(PATH, { fresco: true });
+      if (all.filter((r) => r.stato !== 'approved').length >= MAX_IN_ATTESA) {
+        return res.status(429).json({ error: 'Ci sono gia\' molte recensioni in attesa di verifica. Riprova piu\' avanti.' });
+      }
       all.push({
         id: 'rec-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7),
         nome,

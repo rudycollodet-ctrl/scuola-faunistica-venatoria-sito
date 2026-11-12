@@ -52,6 +52,9 @@ export default async function handler(req, res) {
     const match = /^data:(.+?);base64,(.*)$/.exec(dataUrl);
     if (!match) return res.status(400).json({ error: 'Formato immagine non valido' });
     const contentType = match[1];
+    if (!/^image\/(jpeg|png|webp|gif)$/i.test(contentType)) {
+      return res.status(400).json({ error: 'Sono ammesse solo immagini JPG, PNG, WebP o GIF' });
+    }
     const buffer = Buffer.from(match[2], 'base64');
 
     const safe = (name || 'locandina').replace(/[^a-zA-Z0-9._-]/g, '_');

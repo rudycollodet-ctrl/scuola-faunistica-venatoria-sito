@@ -44,6 +44,8 @@
   }
 }
 </script>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -111,9 +113,9 @@
   </sc-if>
 
   <!-- ENROLL BAR -->
-  <a id="top" href="https://iscrizione-corsi-sfv-2026-nuovo.netlify.app/" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(90deg,#B99646,#D9B65C,#B99646);background-size:200% 100%;animation:sfvShimmer 6s linear infinite alternate;color:#16290D;text-align:center;padding:13px 5vw;font-family:'Fraunces',serif;font-weight:600;font-size:clamp(18px,2.7vw,25px);letter-spacing:.01em;transition:filter .25s,letter-spacing .25s,padding .25s" style-hover="filter:brightness(1.1) saturate(1.08);letter-spacing:.035em;padding-top:17px;padding-bottom:17px">
+  <a id="top" href="https://iscrizione-corsi-sfv-2026-nuovo.netlify.app/" target="_blank" rel="noopener" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 10px;background:linear-gradient(90deg,#B99646,#D9B65C,#B99646);background-size:200% 100%;animation:sfvShimmer 6s linear infinite alternate;color:#16290D;text-align:center;padding:13px 5vw;font-family:'Fraunces',serif;font-weight:600;font-size:clamp(18px,2.7vw,25px);letter-spacing:.01em;transition:filter .25s,letter-spacing .25s,padding .25s" style-hover="filter:brightness(1.1) saturate(1.08);letter-spacing:.035em;padding-top:17px;padding-bottom:17px">
     Iscriviti ai corsi · Scuola Faunistica Venatoria
-    <span style="text-decoration:underline;text-underline-offset:4px;transition:text-underline-offset .25s" style-hover="text-underline-offset:7px">scopri come →</span>
+    <span style="text-decoration:underline;text-underline-offset:4px;transition:text-underline-offset .25s;white-space:nowrap" style-hover="text-underline-offset:7px">scopri come →</span>
   </a>
 
   <!-- HERO -->
@@ -193,7 +195,7 @@
       <p style="font-size:13px;color:#6b6353">Hai un attestato rilasciato dalla nostra scuola e vuoi controllarne l'autenticità? Inserisci il codice di verifica.</p>
     </div>
     <form onSubmit="{{ verifyAttestato }}" style="display:flex;gap:8px;flex-wrap:wrap">
-      <input ref="{{ codeRef }}" type="text" placeholder="Es. SFV-2026-00123" autocomplete="off" style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.04em;padding:11px 14px;border:1px solid #c9c0aa;border-radius:4px;min-width:200px;background:#fff;color:#241E14">
+      <input ref="{{ codeRef }}" type="text" placeholder="Es. SFV-2026-0042" autocomplete="off" style="font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.04em;padding:11px 14px;border:1px solid #c9c0aa;border-radius:4px;min-width:200px;background:#fff;color:#241E14">
       <button type="submit" style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:#4C7A2E;color:#fff;border:none;padding:0 20px;border-radius:4px;cursor:pointer;transition:background .2s;height:42px" style-hover="background:#3d6023">Verifica →</button>
     </form>
   </div>
@@ -216,7 +218,7 @@
       </div>
       <div data-reveal data-reveal-delay="120" style="flex:1 1 300px;min-width:min(100%,280px)">
         <div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:20px">
-          <img src="docente.webp" alt="Rudy Collodet" style="width:104px;height:130px;flex-shrink:0;object-fit:cover;border-radius:3px;border:1px solid rgba(36,30,20,.18)">
+          <img loading="lazy" decoding="async" src="docente.webp" alt="Rudy Collodet" style="width:104px;height:130px;flex-shrink:0;object-fit:cover;border-radius:3px;border:1px solid rgba(36,30,20,.18)">
           <div style="border-left:2px solid #D9B65C;padding-left:18px">
             <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#B99646;margin-bottom:8px">Il docente</p>
             <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:20px;margin-bottom:4px">Rudy Collodet</h3>
@@ -230,7 +232,7 @@
 
   <!-- COLLECTION BAND -->
   <section data-reveal style="position:relative;background:#16290D;padding:0;overflow:hidden">
-    <img src="camoscio-collezione.jpeg" alt="Camoscio nel suo ambiente" style="width:100%;height:clamp(280px,42vw,440px);object-fit:cover;display:block">
+    <img loading="lazy" decoding="async" src="camoscio-collezione.jpeg" alt="Camoscio nel suo ambiente" style="width:100%;height:clamp(280px,42vw,440px);object-fit:cover;display:block">
     <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(22,41,13,.86) 0%,rgba(22,41,13,.5) 45%,rgba(22,41,13,.15) 100%);pointer-events:none"></div>
     <div style="position:absolute;inset:0;display:flex;align-items:center;padding:0 5vw;pointer-events:none">
       <div style="max-width:460px;color:#F3EFE4">
@@ -270,7 +272,7 @@
         <p style="font-size:15.5px;color:#5c5444;margin-top:14px;max-width:54ch;text-wrap:pretty">Due app gratuite pensate da chi insegna caccia ogni giorno: scadenze di licenza, porto d'armi e assicurazione con promemoria, calendari venatori e strumenti di campo. Si installano sul telefono in pochi secondi, senza passare dagli store.</p>
       </div>
       <div class="sfv-qr" style="display:flex;align-items:center;gap:14px;background:#F3EFE4;border:1px solid rgba(36,30,20,.12);border-radius:6px;padding:12px 16px 12px 12px">
-        <img src="app-qr.png" alt="Codice QR per scaricare le app" width="96" height="96" style="width:96px;height:96px;display:block;border-radius:4px">
+        <img loading="lazy" decoding="async" src="app-qr.png" alt="Codice QR per scaricare le app" width="96" height="96" style="width:96px;height:96px;display:block;border-radius:4px">
         <p style="font-size:13px;color:#5c5444;line-height:1.45;max-width:17ch">Sei al computer? <b style="color:#241E14">Inquadra il codice</b> con il telefono.</p>
       </div>
     </div>
@@ -280,7 +282,7 @@
         <span style="position:absolute;top:18px;left:18px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:#D9B65C;color:#16290D;padding:5px 10px;border-radius:2px;font-weight:500">Gratuita</span>
         <div style="padding:clamp(22px,3vw,32px)">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-            <img src="app-montagna.png" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:15px;display:block;box-shadow:0 8px 20px rgba(0,0,0,.4)">
+            <img loading="lazy" decoding="async" src="app-montagna.png" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:15px;display:block;box-shadow:0 8px 20px rgba(0,0,0,.4)">
             <div>
               <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:clamp(24px,2.6vw,30px);line-height:1.05">SFV Montagna</h3>
               <p style="font-size:13.5px;color:#C7D3B8;margin-top:3px">Zona Alpi · ungulati e tetraonidi</p>
@@ -297,7 +299,7 @@
         <span style="position:absolute;top:18px;left:18px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:#D9B65C;color:#16290D;padding:5px 10px;border-radius:2px;font-weight:500">Gratuita</span>
         <div style="padding:clamp(22px,3vw,32px)">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-            <img src="app-pianura.png" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:15px;display:block;box-shadow:0 8px 20px rgba(0,0,0,.4)">
+            <img loading="lazy" decoding="async" src="app-pianura.png" alt="" width="64" height="64" style="width:64px;height:64px;border-radius:15px;display:block;box-shadow:0 8px 20px rgba(0,0,0,.4)">
             <div>
               <h3 style="font-family:'Fraunces',serif;font-weight:600;font-size:clamp(24px,2.6vw,30px);line-height:1.05">SFV Pianura</h3>
               <p style="font-size:13.5px;color:#C7D3B8;margin-top:3px">Pianura e collina · stanziale e migratoria</p>
@@ -336,7 +338,7 @@
               {{ l.imgEl }}
             </sc-if>
             <sc-if value="{{ l.noImage }}" hint-placeholder-val="{{ true }}">
-              <div style="width:100%;height:clamp(340px,42vw,440px);background:repeating-linear-gradient(45deg,#EAE3D2,#EAE3D2 12px,#E2DAC8 12px,#E2DAC8 24px);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#9C917C">locandina</div>
+              <div style="width:100%;aspect-ratio:2 / 3;background:repeating-linear-gradient(45deg,#EAE3D2,#EAE3D2 12px,#E2DAC8 12px,#E2DAC8 24px);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#9C917C">locandina</div>
             </sc-if>
             <div style="padding:18px 18px 22px;border-top:3px solid #D9B65C;flex:1;display:flex;flex-direction:column">
               <sc-if value="{{ l.hasStato }}" hint-placeholder-val="{{ true }}">
@@ -461,10 +463,10 @@
     <div style="display:flex;flex-wrap:wrap;gap:clamp(28px,4vw,56px);align-items:stretch">
       <div data-reveal style="flex:1 1 300px;min-width:min(100%,300px);display:flex;flex-direction:column;gap:24px">
         <ul style="list-style:none">
-          <li style="display:grid;grid-template-columns:100px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Indirizzo</span><span>Via Cal Resana, 24<br>31028 Vazzola (TV)</span></li>
-          <li style="display:grid;grid-template-columns:100px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Telefono</span><span><a href="tel:+393331697875" style="border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14">333 169 7875</a></span></li>
-          <li style="display:grid;grid-template-columns:100px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Email</span><span><a href="mailto:scuolafaunisticavenatoria@gmail.com" style="border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14">scuolafaunisticavenatoria@gmail.com</a></span></li>
-          <li style="display:grid;grid-template-columns:100px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Social</span><span style="display:flex;gap:18px;flex-wrap:wrap"><a href="https://www.facebook.com/scuolafaunisticavenatoria" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:16px;height:16px;flex-shrink:0"><path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21h3z"/></svg>Facebook</a><a href="https://www.instagram.com/scuolafaunisticavenatoria" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="width:16px;height:16px;flex-shrink:0"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a></span></li>
+          <li style="display:grid;grid-template-columns:clamp(64px,22vw,100px) minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Indirizzo</span><span>Via Cal Resana, 24<br>31028 Vazzola (TV)</span></li>
+          <li style="display:grid;grid-template-columns:clamp(64px,22vw,100px) minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Telefono</span><span><a href="tel:+393331697875" style="border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14">333 169 7875</a></span></li>
+          <li style="display:grid;grid-template-columns:clamp(64px,22vw,100px) minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Email</span><span><a href="mailto:scuolafaunisticavenatoria@gmail.com" style="border-bottom:1px solid transparent;transition:.2s;overflow-wrap:anywhere;font-size:clamp(12px,3.4vw,14.5px)" style-hover="border-color:#241E14">scuolafaunisticavenatoria@gmail.com</a></span></li>
+          <li style="display:grid;grid-template-columns:clamp(64px,22vw,100px) minmax(0,1fr);gap:16px;padding:16px 0;border-bottom:1px solid rgba(36,30,20,.12);font-size:14.5px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#4C7A2E;padding-top:2px">Social</span><span style="display:flex;gap:18px;flex-wrap:wrap"><a href="https://www.facebook.com/scuolafaunisticavenatoria" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:16px;height:16px;flex-shrink:0"><path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21h3z"/></svg>Facebook</a><a href="https://www.instagram.com/scuolafaunisticavenatoria" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:7px;border-bottom:1px solid transparent;transition:.2s" style-hover="border-color:#241E14"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="width:16px;height:16px;flex-shrink:0"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a></span></li>
         </ul>
         <div style="background:#16290D;color:#F3EFE4;padding:26px 24px;border-radius:3px">
           <p style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#D9B65C;margin-bottom:16px">Orari di risposta</p>
@@ -495,9 +497,9 @@
     <div style="display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;padding-bottom:36px;border-bottom:1px solid rgba(217,182,92,.14)">
       <div style="max-width:420px">
         <div style="display:flex;align-items:center;gap:18px;margin-bottom:18px;flex-wrap:wrap">
-          <img src="logo.jpg" alt="Scuola Faunistica Venatoria" style="height:96px;width:auto;background:#F3EFE4;border-radius:8px;padding:10px 14px">
+          <img loading="lazy" decoding="async" src="logo.jpg" alt="Scuola Faunistica Venatoria" style="height:96px;width:auto;background:#F3EFE4;border-radius:8px;padding:10px 14px">
           <a href="https://cal-resana-outdoor.vercel.app/" target="_blank" rel="noopener" title="Cal Resana Outdoor" style="display:inline-flex;transition:opacity .2s;opacity:.92" style-hover="opacity:1">
-            <img src="cal-resana-logo.png" alt="Cal Resana Outdoor" style="height:132px;width:auto;background:#F3EFE4;border-radius:8px;padding:10px 14px;display:block">
+            <img loading="lazy" decoding="async" src="cal-resana-logo.png" alt="Cal Resana Outdoor" style="height:132px;width:auto;background:#F3EFE4;border-radius:8px;padding:10px 14px;display:block">
           </a>
         </div>
         <span style="display:block;color:#9C917C;font-size:13px">Via Cal Resana, 24 — Vazzola (TV)</span>
@@ -529,13 +531,13 @@
     <!-- COLLABORAZIONE -->
     <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:30px 0;border-bottom:1px solid rgba(217,182,92,.14)">
       <a href="https://www.jagdterrier.it/" target="_blank" rel="noopener" style="display:inline-flex">
-        <img src="cidjt-logo.png" alt="Club Italiano Deutscher Jagdterrier" style="height:110px;width:auto;flex-shrink:0;background:#F3EFE4;border-radius:8px;padding:10px 14px">
+        <img loading="lazy" decoding="async" src="cidjt-logo.png" alt="Club Italiano Deutscher Jagdterrier" style="height:110px;width:auto;flex-shrink:0;background:#F3EFE4;border-radius:8px;padding:10px 14px">
       </a>
       <a href="https://upgradeyourrifle.com/it/" target="_blank" rel="noopener" style="display:inline-flex">
-        <img src="riva-brutti-logo.png" alt="Riva &amp; Brutti — upgradeyourrifle.com" style="height:110px;width:auto;flex-shrink:0;background:#F3EFE4;border-radius:8px;padding:10px 14px">
+        <img loading="lazy" decoding="async" src="riva-brutti-logo.png" alt="Riva &amp; Brutti — upgradeyourrifle.com" style="height:110px;width:auto;flex-shrink:0;background:#F3EFE4;border-radius:8px;padding:10px 14px">
       </a>
       <a href="https://montecoppolo.it/shop/it/" target="_blank" rel="noopener" style="display:inline-flex">
-        <img src="montecoppolo-logo.jpeg" alt="Montecoppolo" style="height:110px;width:auto;flex-shrink:0;background:#F3EFE4;border-radius:8px;padding:10px 14px">
+        <img loading="lazy" decoding="async" src="montecoppolo-logo.jpeg" alt="Montecoppolo" style="height:110px;width:auto;flex-shrink:0;background:#F3EFE4;border-radius:8px;padding:10px 14px">
       </a>
       <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#D9B65C">Collabora con noi</span>
     </div>
@@ -914,7 +916,7 @@ class Component extends DCLogic {
       immagine: l.immagine || '',
       hasImage: !!l.immagine,
       noImage: !l.immagine,
-      imgEl: l.immagine ? React.createElement('img', { src: l.immagine, alt: l.titolo || 'Locandina', style: { display:'block', width:'100%', height:'clamp(340px,42vw,440px)', objectFit:'cover', background:'#EAE3D2' } }) : null,
+      imgEl: l.immagine ? React.createElement('img', { src: l.immagine, alt: l.titolo || 'Locandina', loading: 'lazy', decoding: 'async', style: { display:'block', width:'100%', aspectRatio:'2 / 3', height:'auto', objectFit:'cover', objectPosition:'top', background:'#EAE3D2' } }) : null,
       hasStato: !!(l.stato && l.stato.trim()),
       hasLink: !!(l.link && l.link.trim()),
       hasDesc: !!(l.descrizione && l.descrizione.trim()),
@@ -1035,7 +1037,7 @@ class Component extends DCLogic {
         ev.preventDefault();
         const codice = (this.codeRef.current && this.codeRef.current.value.trim()) || '';
         const base = 'https://nuova-piattaforma-corsi-scuola-faun.vercel.app/verifica.html';
-        const url = codice ? (base + '?codice=' + encodeURIComponent(codice)) : base;
+        const url = codice ? (base + '?n=' + encodeURIComponent(codice)) : base;
         window.open(url, '_blank', 'noopener');
       }
     };
@@ -1099,10 +1101,10 @@ class Component extends DCLogic {
           '<h2 id="sfvAppPopT">Le app della Scuola, <em>a caccia con te.</em></h2>'+
           '<p class="t">Scadenze con promemoria, calendari venatori, biometria e distanza di tiro: tutto sul tuo telefono, senza store.</p>'+
           '<a class="app" href="'+BASE+'montagna/" target="_blank" rel="noopener" data-app>'+
-            '<img src="app-montagna.png" alt=""><span><b>SFV Montagna</b><small>Zona Alpi · ungulati e tetraonidi</small></span><span class="vai">Scarica</span></a>'+
+            '<img loading="lazy" decoding="async" src="app-montagna.png" alt=""><span><b>SFV Montagna</b><small>Zona Alpi · ungulati e tetraonidi</small></span><span class="vai">Scarica</span></a>'+
           '<a class="app" href="'+BASE+'pianura/" target="_blank" rel="noopener" data-app>'+
-            '<img src="app-pianura.png" alt=""><span><b>SFV Pianura</b><small>Stanziale, migratoria e calendari</small></span><span class="vai">Scarica</span></a>'+
-          '<div class="qr"><img src="app-qr.png" alt="Codice QR delle app"><span>Sei al computer?<br>Inquadra il codice con il telefono.</span></div>'+
+            '<img loading="lazy" decoding="async" src="app-pianura.png" alt=""><span><b>SFV Pianura</b><small>Stanziale, migratoria e calendari</small></span><span class="vai">Scarica</span></a>'+
+          '<div class="qr"><img loading="lazy" decoding="async" src="app-qr.png" alt="Codice QR delle app"><span>Sei al computer?<br>Inquadra il codice con il telefono.</span></div>'+
           '<button class="dopo" type="button">Più tardi</button>'+
         '</div>'+
       '</div>';
@@ -1129,10 +1131,14 @@ class Component extends DCLogic {
   var fatto=false;
   function via(){ if (fatto) return; fatto=true; window.removeEventListener('scroll',suScroll); mostra(); }
   function suScroll(){ if (window.scrollY > window.innerHeight*0.6) setTimeout(via,600); }
-  window.addEventListener('load',function(){
+  function sceltaCookie(){ try{ return !!localStorage.getItem('sfv:cookie-consent'); }catch(e){ return true; } }
+  function parti(){
+    // Prima il banner dei cookie: la finestra delle app compare solo dopo la scelta.
+    if (!forza && !sceltaCookie()){ setTimeout(parti, 1500); return; }
     setTimeout(via, forza?300:4500);
     window.addEventListener('scroll',suScroll,{passive:true});
-  });
+  }
+  window.addEventListener('load',parti);
   // Si possono collegare altri pulsanti: href="#apri-app"
   document.addEventListener('click',function(e){
     var a=e.target.closest && e.target.closest('a[href="#apri-app"]');
