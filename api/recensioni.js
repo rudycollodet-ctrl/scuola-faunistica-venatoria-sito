@@ -1,21 +1,17 @@
-// api/recensioni.js — recensioni degli allievi con verifica (moderazione), su Vercel Blob
+// api/recensioni.js — recensioni degli allievi su Firestore.
 //
-//  GET  /api/recensioni          -> pubblico: solo le recensioni APPROVATE
-//  GET  /api/recensioni?all=1    -> protetto: TUTTE (comprese in attesa) [Bearer ADMIN_TOKEN]
-//  POST /api/recensioni          -> pubblico: un allievo invia una recensione (resta "pending")
-//  PUT  /api/recensioni          -> protetto: salva l'elenco intero
+//  GET  /api/recensioni   -> pubblico: le recensioni PUBBLICATE (raccolta sito_recensioni)
+//  POST /api/recensioni   -> pubblico: un allievo invia una recensione, che finisce
+//                            "in attesa" (raccolta sito_recensioni_attesa) finche'
+//                            l'amministratore non la approva dal pannello.
 //
-// Se l'archivio non e' disponibile risponde 503 e NON scrive nulla:
-// prima un invio con archivio bloccato poteva sovrascrivere tutte le recensioni.
+// Approvare, rifiutare e rimuovere si fa dal pannello, con l'account amministratore.
 
-import { leggiElenco, scriviElenco, isAdmin, cachePubblica, rispostaErrore } from './_archivio.js';
+import { leggiRaccolta, creaDocumento, cachePubblica, rispostaErrore } from './_firebase.js';
 
-const PATH = 'data/recensioni.json';
-
-// Anti-spam: ogni invio scrive sull'archivio, e le scritture gratuite sono limitate.
-const MAX_IN_ATTESA = 60;          // oltre questo numero di recensioni da verificare si rifiutano i nuovi invii
-const MAX_PER_INDIRIZZO = 3;       // invii consentiti dallo stesso indirizzo...
-const FINESTRA = 10 * 60 * 1000;   // ...ogni dieci minuti
+// Anti-spam: invii consentiti dallo stesso indirizzo in dieci minuti.
+const MAX_PER_INDIRIZZO = 3;
+const FINESTRA = 10 * 60 * 1000;
 const invii = new Map();
 
 function troppiInvii(req) {
@@ -31,8 +27,8 @@ function troppiInvii(req) {
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
 export default async function handler(req, res) {
@@ -40,16 +36,11 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
 
   if (req.method === 'GET') {
-    const tutte = req.query && req.query.all === '1';
-    if (tutte && !isAdmin(req)) return res.status(401).json({ error: 'Non autorizzato' });
     try {
-      const all = await leggiElenco(PATH, { fresco: tutte });
-      if (tutte) {
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json(all);
-      }
+      const data = await leggiRaccolta('sito_recensioni');
+      data.sort((a, b) => (b.creata || 0) - (a.creata || 0));
       cachePubblica(res);
-      return res.status(200).json(all.filter((r) => r.stato === 'approved'));
+      return res.status(200).json(data);
     } catch (e) {
       return rispostaErrore(res, e);
     }
@@ -62,41 +53,25 @@ export default async function handler(req, res) {
     } catch (e) {
       return res.status(400).json({ error: 'Formato non valido' });
     }
-    const nome = ((body && body.nome) || '').toString().slice(0, 120).trim();
-    const testo = ((body && body.testo) || '').toString().slice(0, 4000).trim();
+    const pulisci = (v, max) => ((v || '') + '').slice(0, max).trim();
+    const nome = pulisci(body && body.nome, 120);
+    const testo = pulisci(body && body.testo, 4000);
     if (!nome || !testo) return res.status(400).json({ error: 'Nome e testo obbligatori' });
     if (troppiInvii(req)) return res.status(429).json({ error: 'Troppi invii ravvicinati. Riprova tra qualche minuto.' });
+    const id = 'rec-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
     try {
-      // Lettura fresca: se fallisce ci fermiamo, senza toccare l'archivio.
-      const all = await leggiElenco(PATH, { fresco: true });
-      if (all.filter((r) => r.stato !== 'approved').length >= MAX_IN_ATTESA) {
-        return res.status(429).json({ error: 'Ci sono gia\' molte recensioni in attesa di verifica. Riprova piu\' avanti.' });
-      }
-      all.push({
-        id: 'rec-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7),
+      await creaDocumento('sito_recensioni_attesa', id, {
         nome,
-        titolo: (body.titolo || '').toString().slice(0, 160).trim(),
+        titolo: pulisci(body.titolo, 160),
         testo,
-        corso: (body.corso || '').toString().slice(0, 160).trim(),
+        corso: pulisci(body.corso, 160),
         stato: 'pending',
         creata: Date.now()
       });
-      await scriviElenco(PATH, all);
+      res.setHeader('Cache-Control', 'no-store');
       return res.status(200).json({ ok: true });
     } catch (e) {
       return rispostaErrore(res, e);
-    }
-  }
-
-  if (req.method === 'PUT') {
-    if (!isAdmin(req)) return res.status(401).json({ error: 'Non autorizzato' });
-    try {
-      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-      if (!Array.isArray(body)) return res.status(400).json({ error: 'Formato non valido' });
-      await scriviElenco(PATH, body);
-      return res.status(200).json({ ok: true, count: body.length });
-    } catch (e) {
-      return res.status(500).json({ error: 'Salvataggio non riuscito', dettaglio: e && e.message });
     }
   }
 

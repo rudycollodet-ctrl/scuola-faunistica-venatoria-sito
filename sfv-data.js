@@ -1,32 +1,34 @@
 /* ============================================================
-   SFVData — livello dati per le locandine.
-   Funziona in due modalità (automatico):
-   - REMOTA: se SFV_API_BASE è impostato -> legge/scrive sul
-     backend Vercel (visibile a tutti, in tempo reale).
-   - DEMO: se SFV_API_BASE è vuoto -> usa il browser locale
-     (localStorage), utile per provare senza pubblicare.
+   SFVData — livello dati del sito (locandine e recensioni).
 
-   Contratto API (backend Vercel):
-     GET  {base}/api/locandine            -> [ {locandina}, ... ]
-     PUT  {base}/api/locandine            -> body: array intero
-            header: Authorization: Bearer <token>
-     POST {base}/api/upload               -> body JSON {name, dataUrl}
-            header: Authorization: Bearer <token>
-            risposta: { url: "https://..." }
+   Dove stanno i dati: Firebase (progetto scuola-faunistica-venatoria),
+   lo stesso di Area Formativa e gestionale, in raccolte separate:
+     sito_locandine            locandine della sezione News
+     sito_recensioni           recensioni pubblicate
+     sito_recensioni_attesa    recensioni inviate, in attesa di verifica
+     Storage: sito/locandine/  immagini delle locandine
 
-   Modello locandina:
-     { id, titolo, data, sede, descrizione, link, stato, immagine, ordine }
+   Chi legge e chi scrive:
+   - Il sito pubblico legge da /api/locandine e /api/recensioni (server
+     Vercel con cache di un minuto) e invia le recensioni a /api/recensioni.
+   - Il pannello entra con l'account amministratore di Firebase (la stessa
+     password della piattaforma e-learning e del gestionale) e scrive
+     direttamente su Firebase. Le regole di sicurezza di Firebase permettono
+     le modifiche solo all'amministratore.
    ============================================================ */
 (function () {
-  var LS_DATA = 'sfv:locandine:data';
-  var LS_REVIEWS = 'sfv:recensioni:data';
-  var LS_TOKEN = 'sfv:admin:token';
+  var PROJECT = 'scuola-faunistica-venatoria';
+  var API_KEY = 'AIzaSyCH0NoAaZztDWvHUrEhb5D4QUjQE4om9Pk';
+  var BUCKET = 'scuola-faunistica-venatoria.firebasestorage.app';
+  var FS = 'https://firestore.googleapis.com/v1/projects/' + PROJECT + '/databases/(default)/documents';
+  var DOC_PREFIX = 'projects/' + PROJECT + '/databases/(default)/documents/';
+  var ADMIN_EMAILS = ['scuolafaunisticavenatoria@gmail.com', 'admin@sfv.it'];
+  var SS_AUTH = 'sfv:fb:auth';
+  // Vecchio archivio Vercel (bloccato): serve solo per importare i dati una volta.
+  var VECCHIO_ARCHIVIO = 'https://xat7ozsandfxgraa.public.blob.vercel-storage.com/data/';
 
   function base() {
     return (window.SFV_API_BASE || '').replace(/\/+$/, '');
-  }
-  function token() {
-    return sessionStorage.getItem(LS_TOKEN) || '';
   }
   function isRemote() { return !!base(); }
 
@@ -34,8 +36,6 @@
     return 'loc-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7);
   }
 
-  // Locandine fisse: restano sempre visibili sul sito, anche se l'archivio
-  // del pannello non e' disponibile. Le immagini stanno nella cartella /locandine.
   var LOCANDINE_FISSE = [
     { id: 'corsi-caccia-veneto', ordine: -3, stato: 'Iscrizioni aperte',
       titolo: 'Corsi di caccia — Licenza',
@@ -70,54 +70,164 @@
       return (a.ordine == null ? 999 : a.ordine) - (b.ordine == null ? 999 : b.ordine);
     });
   }
+  function sortByDateDesc(arr) {
+    return (arr || []).slice().sort(function (a, b) { return (b.creata || 0) - (a.creata || 0); });
+  }
 
-  // opts.strict (pannello): se il server non risponde lancia un errore invece
-  // di restituire un elenco vuoto, cosi' non si rischia di salvare "zero locandine".
+  /* ---------- valori Firestore <-> JS ---------- */
+  function daValore(v) {
+    if (!v || typeof v !== 'object') return null;
+    if ('stringValue' in v) return v.stringValue;
+    if ('integerValue' in v) return Number(v.integerValue);
+    if ('doubleValue' in v) return v.doubleValue;
+    if ('booleanValue' in v) return v.booleanValue;
+    if ('timestampValue' in v) return Date.parse(v.timestampValue);
+    if ('nullValue' in v) return null;
+    if ('arrayValue' in v) return (v.arrayValue.values || []).map(daValore);
+    if ('mapValue' in v) return daCampi(v.mapValue.fields || {});
+    return null;
+  }
+  function daCampi(f) { var o = {}; Object.keys(f || {}).forEach(function (k) { o[k] = daValore(f[k]); }); return o; }
+  function aValore(x) {
+    if (x === null || x === undefined) return { nullValue: null };
+    if (typeof x === 'boolean') return { booleanValue: x };
+    if (typeof x === 'number') return Number.isInteger(x) ? { integerValue: String(x) } : { doubleValue: x };
+    if (Array.isArray(x)) return { arrayValue: { values: x.map(aValore) } };
+    if (typeof x === 'object') return { mapValue: { fields: aCampi(x) } };
+    return { stringValue: String(x) };
+  }
+  function aCampi(o) { var f = {}; Object.keys(o || {}).forEach(function (k) { f[k] = aValore(o[k]); }); return f; }
+
+  /* ---------- accesso amministratore (Firebase Authentication) ---------- */
+  function leggiAuth() { try { return JSON.parse(sessionStorage.getItem(SS_AUTH) || 'null'); } catch (e) { return null; } }
+  function scriviAuth(a) { try { if (a) sessionStorage.setItem(SS_AUTH, JSON.stringify(a)); else sessionStorage.removeItem(SS_AUTH); } catch (e) {} }
+
+  async function erroreLeggibile(r) {
+    try { var j = await r.json(); return (j && j.error && (j.error.message || j.error)) || ('errore ' + r.status); }
+    catch (e) { return 'errore ' + r.status; }
+  }
+
+  async function sonoAdmin(a) {
+    var r = await fetch(FS + '/admins/' + encodeURIComponent(a.uid), { headers: { Authorization: 'Bearer ' + a.idToken } });
+    return r.ok;
+  }
+
+  // Entra con la password dell'amministratore. Restituisce true/false.
+  async function login(password) {
+    if (!password) return false;
+    var ultimoErrore = '';
+    for (var i = 0; i < ADMIN_EMAILS.length; i++) {
+      var r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + API_KEY, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: ADMIN_EMAILS[i], password: password, returnSecureToken: true })
+      });
+      if (r.ok) {
+        var j = await r.json();
+        var a = { uid: j.localId, email: j.email, idToken: j.idToken, refreshToken: j.refreshToken,
+                  scade: Date.now() + (Number(j.expiresIn || 3600) - 120) * 1000 };
+        if (await sonoAdmin(a)) { scriviAuth(a); return true; }
+        ultimoErrore = 'Questo account non e\' amministratore.';
+        continue;
+      }
+      ultimoErrore = await erroreLeggibile(r);
+      if (/TOO_MANY_ATTEMPTS/.test(ultimoErrore)) throw new Error('Troppi tentativi: riprova tra qualche minuto.');
+    }
+    if (/non e' amministratore/.test(ultimoErrore)) throw new Error(ultimoErrore);
+    return false;
+  }
+
+  function logout() { scriviAuth(null); }
+  function isLogged() { return !!leggiAuth(); }
+
+  // Token valido per le scritture (si rinnova da solo ogni ora).
+  async function token() {
+    var a = leggiAuth();
+    if (!a) throw new Error('Accesso scaduto: rientra nel pannello.');
+    if (Date.now() < a.scade) return a.idToken;
+    var r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + API_KEY, {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(a.refreshToken)
+    });
+    if (!r.ok) { scriviAuth(null); throw new Error('Accesso scaduto: rientra nel pannello.'); }
+    var j = await r.json();
+    a.idToken = j.id_token; a.refreshToken = j.refresh_token || a.refreshToken;
+    a.scade = Date.now() + (Number(j.expires_in || 3600) - 120) * 1000;
+    scriviAuth(a);
+    return a.idToken;
+  }
+
+  /* ---------- letture e scritture dirette su Firestore ---------- */
+  async function leggiRaccolta(nome, conAccesso) {
+    var out = [], pageToken = '';
+    var headers = conAccesso ? { Authorization: 'Bearer ' + (await token()) } : {};
+    for (var giro = 0; giro < 10; giro++) {
+      var r = await fetch(FS + '/' + nome + '?pageSize=300&key=' + API_KEY + (pageToken ? '&pageToken=' + encodeURIComponent(pageToken) : ''),
+        { cache: 'no-store', headers: headers });
+      if (!r.ok) throw new Error('Lettura di ' + nome + ' non riuscita: ' + (await erroreLeggibile(r)));
+      var d = await r.json();
+      (d.documents || []).forEach(function (doc) { var x = daCampi(doc.fields); x.id = x.id || doc.name.split('/').pop(); out.push(x); });
+      if (!d.nextPageToken) break;
+      pageToken = d.nextPageToken;
+    }
+    return out;
+  }
+
+  // Scritture atomiche: o vanno a buon fine tutte, o nessuna.
+  async function commit(writes) {
+    if (!writes.length) return true;
+    for (var i = 0; i < writes.length; i += 400) {
+      var r = await fetch(FS.replace(/\/documents$/, '/documents:commit') + '?key=' + API_KEY, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (await token()) },
+        body: JSON.stringify({ writes: writes.slice(i, i + 400) })
+      });
+      if (r.status === 401 || r.status === 403) throw new Error('Permesso negato: rientra nel pannello con la password amministratore.');
+      if (!r.ok) throw new Error('Salvataggio non riuscito: ' + (await erroreLeggibile(r)));
+    }
+    return true;
+  }
+  function scrivi(raccolta, id, dati) { return { update: { name: DOC_PREFIX + raccolta + '/' + id, fields: aCampi(dati) } }; }
+  function cancella(raccolta, id) { return { delete: DOC_PREFIX + raccolta + '/' + id }; }
+
+  /* ---------- LOCANDINE ---------- */
+  var ultimeLocandine = null; // ultimo elenco letto dal pannello: serve a capire cosa e' stato eliminato
+
+  // Sito pubblico: elenco dal server (con cache) + locandine fisse.
+  // Pannello (opts.strict): elenco fresco da Firebase; se non risponde lancia un
+  // errore invece di restituire un elenco vuoto, cosi' non si salva "zero locandine".
   async function list(opts) {
     var strict = !!(opts && opts.strict);
+    if (strict) {
+      if (!isRemote()) return sortItems(JSON.parse(localStorage.getItem('sfv:locandine:data') || '[]'));
+      var dati = sortItems(await leggiRaccolta('sito_locandine', false));
+      ultimeLocandine = dati.map(function (x) { return x.id; });
+      return dati;
+    }
     if (isRemote()) {
       try {
-        var r = await fetch(base() + '/api/locandine' + (strict ? '?fresco=1' : ''), { cache: 'no-store' });
-        if (r.ok) {
-          var data = await r.json();
-          data = Array.isArray(data) ? data : [];
-          return strict ? sortItems(data) : conFisse(data);
-        }
-        if (strict) {
-          var det = '';
-          try { var j = await r.json(); det = j && j.error ? j.error : ''; } catch (e2) {}
-          throw new Error(det || ('Server non disponibile (' + r.status + ').'));
-        }
-      } catch (e) {
-        if (strict) throw e;
-        /* sito pubblico: cade in demo sotto */
-      }
+        var r = await fetch(base() + '/api/locandine', { cache: 'no-store' });
+        if (r.ok) { var d = await r.json(); return conFisse(Array.isArray(d) ? d : []); }
+      } catch (e) {}
     }
-    var locali = [];
-    try {
-      var raw = localStorage.getItem(LS_DATA);
-      locali = raw ? JSON.parse(raw) : [];
-    } catch (e) { locali = []; }
-    return strict ? sortItems(locali) : conFisse(locali);
+    return conFisse([]);
   }
 
   async function save(items) {
     var clean = sortItems(items).map(function (it, i) {
-      it.ordine = i;
-      if (!it.id) it.id = uid();
-      return it;
+      var c = Object.assign({}, it);
+      delete c.uploading;
+      c.ordine = i;
+      if (!c.id) c.id = uid();
+      return c;
     });
-    if (isRemote()) {
-      var r = await fetch(base() + '/api/locandine', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() },
-        body: JSON.stringify(clean)
-      });
-      if (r.status === 401 || r.status === 403) throw new Error('Password non valida.');
-      if (!r.ok) throw new Error('Salvataggio non riuscito (' + r.status + ').');
-      return true;
-    }
-    localStorage.setItem(LS_DATA, JSON.stringify(clean));
+    if (!isRemote()) { localStorage.setItem('sfv:locandine:data', JSON.stringify(clean)); return true; }
+    if (ultimeLocandine === null) throw new Error('Le locandine esistenti non sono state caricate: ricarica la pagina.');
+    var restano = {};
+    clean.forEach(function (c) { restano[c.id] = true; });
+    var writes = clean.map(function (c) { return scrivi('sito_locandine', c.id, c); });
+    ultimeLocandine.forEach(function (id) { if (!restano[id]) writes.push(cancella('sito_locandine', id)); });
+    await commit(writes);
+    ultimeLocandine = clean.map(function (c) { return c.id; });
     return true;
   }
 
@@ -159,124 +269,124 @@
     });
   }
 
+  function dataUrlInBlob(dataUrl) {
+    var m = /^data:([^;]+);base64,(.*)$/.exec(dataUrl);
+    var bin = atob(m[2]), arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: m[1] });
+  }
+
+  // Carica un'immagine nello spazio file di Firebase e restituisce l'indirizzo pubblico.
+  async function caricaInStorage(blob, nomeBase) {
+    var nome = 'sito/locandine/' + Date.now() + '-' + (nomeBase || 'locandina').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 60) + '.jpg';
+    var r = await fetch('https://firebasestorage.googleapis.com/v0/b/' + BUCKET + '/o?uploadType=media&name=' + encodeURIComponent(nome), {
+      method: 'POST',
+      headers: { 'Content-Type': blob.type || 'image/jpeg', Authorization: 'Firebase ' + (await token()) },
+      body: blob
+    });
+    if (r.status === 401 || r.status === 403) throw new Error('Permesso negato per il caricamento: rientra nel pannello.');
+    if (!r.ok) throw new Error('Caricamento immagine non riuscito (' + r.status + ').');
+    return 'https://firebasestorage.googleapis.com/v0/b/' + BUCKET + '/o/' + encodeURIComponent(nome) + '?alt=media';
+  }
+
   async function uploadImage(file) {
     var dataUrl = await shrinkImage(file, 1600, 0.82);
     if (!dataUrl) dataUrl = await fileToDataUrl(file);
-    // se ancora troppo pesante, riduco ulteriormente
     if (dataUrl.length > 3200000) dataUrl = await shrinkImage(file, 1200, 0.72);
     if (dataUrl.length > 3200000) dataUrl = await shrinkImage(file, 900, 0.65);
-    if (isRemote()) {
-      var r = await fetch(base() + '/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() },
-        body: JSON.stringify({ name: (file.name || 'locandina').replace(/\.[^.]+$/, '') + '.jpg', dataUrl: dataUrl })
-      });
-      if (r.status === 401 || r.status === 403) throw new Error('Password non valida.');
-      if (!r.ok) {
-        var det = '';
-        try { var e1 = await r.json(); det = e1 && e1.error ? e1.error : ''; }
-        catch (e2) { try { det = await r.text(); } catch (e3) {} }
-        if (r.status === 413) throw new Error('Immagine troppo grande anche dopo la compressione. Prova con una foto piu leggera.');
-        throw new Error('Caricamento immagine non riuscito (' + r.status + '). ' + (det || 'Nessun dettaglio dal server.'));
-      }
-      var j = await r.json();
-      return j.url;
-    }
-    // demo: l'immagine resta come dataURL nel browser
-    return dataUrl;
+    if (!isRemote()) return dataUrl; // prova in locale: l'immagine resta nel browser
+    return caricaInStorage(dataUrlInBlob(dataUrl), (file.name || 'locandina').replace(/\.[^.]+$/, ''));
   }
 
   /* ---------- RECENSIONI ----------
      Modello: { id, nome, titolo, testo, corso, stato:'pending'|'approved', creata }
-     - Il cliente invia una recensione dal sito -> stato 'pending' (in attesa).
-     - L'amministratore la approva dal pannello -> stato 'approved' (verificata) e appare sul sito.
   */
 
-  function sortByDateDesc(arr) {
-    return (arr || []).slice().sort(function (a, b) {
-      return (b.creata || 0) - (a.creata || 0);
-    });
-  }
-
-  // Pubblico: solo recensioni approvate (verificate).
+  // Sito pubblico: solo le recensioni pubblicate.
   async function listReviews() {
-    if (isRemote()) {
-      try {
-        var r = await fetch(base() + '/api/recensioni', { cache: 'no-store' });
-        if (r.ok) { var d = await r.json(); return sortByDateDesc(Array.isArray(d) ? d : []); }
-      } catch (e) {}
-    }
+    if (!isRemote()) return [];
     try {
-      var raw = localStorage.getItem(LS_REVIEWS);
-      var all = raw ? JSON.parse(raw) : [];
-      return sortByDateDesc(all.filter(function (x) { return x.stato === 'approved'; }));
-    } catch (e) { return []; }
-  }
-
-  // Admin: tutte le recensioni (comprese quelle in attesa).
-  async function listReviewsAll() {
-    if (isRemote()) {
-      var r = await fetch(base() + '/api/recensioni?all=1', {
-        cache: 'no-store',
-        headers: { 'Authorization': 'Bearer ' + token() }
-      });
-      if (r.status === 401 || r.status === 403) throw new Error('Password non valida.');
+      var r = await fetch(base() + '/api/recensioni', { cache: 'no-store' });
       if (r.ok) { var d = await r.json(); return sortByDateDesc(Array.isArray(d) ? d : []); }
-      var det2 = '';
-      try { var j2 = await r.json(); det2 = j2 && j2.error ? j2.error : ''; } catch (e3) {}
-      throw new Error(det2 || 'Caricamento non riuscito.');
-    }
-    try {
-      var raw = localStorage.getItem(LS_REVIEWS);
-      return sortByDateDesc(raw ? JSON.parse(raw) : []);
-    } catch (e) { return []; }
+    } catch (e) {}
+    return [];
   }
 
-  // Pubblico: invia una nuova recensione (resta in attesa di approvazione).
+  // Pannello: in attesa + pubblicate.
+  async function listReviewsAll() {
+    var attesa = await leggiRaccolta('sito_recensioni_attesa', true);
+    var pubblicate = await leggiRaccolta('sito_recensioni', false);
+    attesa.forEach(function (x) { x.stato = 'pending'; });
+    pubblicate.forEach(function (x) { x.stato = 'approved'; });
+    return sortByDateDesc(attesa.concat(pubblicate));
+  }
+
+  // Sito pubblico: invia una recensione (resta in attesa di verifica).
   async function submitReview(data) {
-    var review = {
-      id: 'rec-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 7),
-      nome: (data.nome || '').trim(),
-      titolo: (data.titolo || '').trim(),
-      testo: (data.testo || '').trim(),
-      corso: (data.corso || '').trim(),
-      stato: 'pending',
-      creata: Date.now()
-    };
-    if (isRemote()) {
-      var r = await fetch(base() + '/api/recensioni', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(review)
-      });
-      if (!r.ok) throw new Error('Invio non riuscito.');
-      return true;
+    var r = await fetch(base() + '/api/recensioni', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nome: data.nome, titolo: data.titolo, testo: data.testo, corso: data.corso })
+    });
+    if (!r.ok) {
+      var det = '';
+      try { var j = await r.json(); det = j && j.error ? j.error : ''; } catch (e) {}
+      throw new Error(det || 'Invio non riuscito.');
     }
-    try {
-      var raw = localStorage.getItem(LS_REVIEWS);
-      var all = raw ? JSON.parse(raw) : [];
-      all.push(review);
-      localStorage.setItem(LS_REVIEWS, JSON.stringify(all));
-      return true;
-    } catch (e) { throw new Error('Invio non riuscito.'); }
-  }
-
-  // Admin: salva l'intero elenco (dopo approvazione/eliminazione).
-  async function saveReviews(items) {
-    if (isRemote()) {
-      var r = await fetch(base() + '/api/recensioni', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token() },
-        body: JSON.stringify(items)
-      });
-      if (r.status === 401 || r.status === 403) throw new Error('Password non valida.');
-      if (!r.ok) throw new Error('Salvataggio non riuscito.');
-      return true;
-    }
-    localStorage.setItem(LS_REVIEWS, JSON.stringify(items));
     return true;
   }
 
+  function campiRecensione(x, stato) {
+    return { nome: x.nome || '', titolo: x.titolo || '', testo: x.testo || '', corso: x.corso || '', stato: stato, creata: Number(x.creata) || Date.now() };
+  }
+  // Approva: la sposta da "in attesa" a "pubblicate" in un'unica operazione.
+  function approveReview(x) {
+    return commit([scrivi('sito_recensioni', x.id, campiRecensione(x, 'approved')), cancella('sito_recensioni_attesa', x.id)]);
+  }
+  function rejectReview(x) { return commit([cancella('sito_recensioni_attesa', x.id)]); }
+  function removeReview(x) { return commit([cancella('sito_recensioni', x.id)]); }
+
+  /* ---------- IMPORTAZIONE DAL VECCHIO ARCHIVIO VERCEL ----------
+     Da usare una volta, quando Vercel sblocca il vecchio archivio. Aggiunge
+     solo cio' che non c'e' gia' (per id) e non cancella nulla. */
+  async function importaVecchioArchivio() {
+    async function leggi(f) {
+      var r = await fetch(VECCHIO_ARCHIVIO + f + '?t=' + Date.now(), { cache: 'no-store' });
+      if (r.status === 404) return [];
+      if (!r.ok) throw new Error('Il vecchio archivio di Vercel non e\' ancora accessibile (' + r.status + '). Riprova quando Vercel lo sblocca.');
+      var d = await r.json();
+      return Array.isArray(d) ? d : [];
+    }
+    var vecchieLoc = await leggi('locandine.json');
+    var vecchieRec = await leggi('recensioni.json');
+    var giaLoc = {}, giaRec = {};
+    (await leggiRaccolta('sito_locandine', false)).forEach(function (x) { giaLoc[x.id] = true; });
+    (await listReviewsAll()).forEach(function (x) { giaRec[x.id] = true; });
+
+    var writes = [], nLoc = 0, nRec = 0, base0 = (ultimeLocandine || []).length;
+    for (var i = 0; i < vecchieLoc.length; i++) {
+      var l = Object.assign({}, vecchieLoc[i]);
+      if (!l.id) l.id = uid();
+      if (giaLoc[l.id]) continue;
+      if (l.immagine && /^https?:\/\//.test(l.immagine) && l.immagine.indexOf('firebasestorage') < 0) {
+        try { var img = await fetch(l.immagine); if (img.ok) l.immagine = await caricaInStorage(await img.blob(), l.titolo || l.id); } catch (e) {}
+      }
+      l.ordine = base0 + i;
+      writes.push(scrivi('sito_locandine', l.id, l));
+      nLoc++;
+    }
+    vecchieRec.forEach(function (x) {
+      if (!x || !x.id || giaRec[x.id]) return;
+      var approvata = x.stato === 'approved';
+      writes.push(scrivi(approvata ? 'sito_recensioni' : 'sito_recensioni_attesa', x.id, campiRecensione(x, approvata ? 'approved' : 'pending')));
+      nRec++;
+    });
+    await commit(writes);
+    if (ultimeLocandine) ultimeLocandine = null; // da ricaricare
+    return { locandine: nLoc, recensioni: nRec };
+  }
+
+  // Area riservata della home (link al gestionale): resta controllata dal server.
   async function verifyPassword(password) {
     if (!base()) return false;
     var r = await fetch(base() + '/api/verifica', {
@@ -287,11 +397,8 @@
     return r.ok;
   }
 
-  function setToken(t) {
-    localStorage.removeItem(LS_TOKEN); // pulisce la copia delle vecchie versioni
-    sessionStorage.setItem(LS_TOKEN, t || '');
-  }
-  function getToken() { return token(); }
+  // Pulisce la vecchia memoria della password del pannello (versioni precedenti).
+  try { sessionStorage.removeItem('sfv:admin:token'); localStorage.removeItem('sfv:admin:token'); } catch (e) {}
 
   window.SFVData = {
     list: list,
@@ -300,11 +407,15 @@
     listReviews: listReviews,
     listReviewsAll: listReviewsAll,
     submitReview: submitReview,
-    saveReviews: saveReviews,
+    approveReview: approveReview,
+    rejectReview: rejectReview,
+    removeReview: removeReview,
+    importaVecchioArchivio: importaVecchioArchivio,
     isRemote: isRemote,
+    login: login,
+    logout: logout,
+    isLogged: isLogged,
     verifyPassword: verifyPassword,
-    setToken: setToken,
-    getToken: getToken,
     newId: uid
   };
 })();

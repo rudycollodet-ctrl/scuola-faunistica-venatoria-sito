@@ -40,6 +40,7 @@
       </span>
       <sc-if value="{{ authed }}" hint-placeholder-val="{{ false }}">
         <a href="./" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#D9B65C;border:1px solid rgba(217,182,92,.4);padding:8px 14px;border-radius:3px;text-decoration:none">Vedi il sito ↗</a>
+        <button onClick="{{ doLogout }}" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#B9C4AE;background:transparent;border:1px solid rgba(185,196,174,.35);padding:8px 12px;border-radius:3px;cursor:pointer">Esci</button>
       </sc-if>
     </div>
   </div>
@@ -52,7 +53,7 @@
           <svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px"><rect x="4.5" y="10" width="15" height="10" rx="2" stroke="#D9B65C" stroke-width="1.6"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10" stroke="#D9B65C" stroke-width="1.6"/></svg>
         </div>
         <h2 style="font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin-bottom:8px">Area riservata</h2>
-        <p style="font-size:14px;color:#B9C4AE;margin-bottom:24px">Inserisci la password per gestire le locandine dei corsi.</p>
+        <p style="font-size:14px;color:#B9C4AE;margin-bottom:24px">Inserisci la password amministratore: è la stessa della piattaforma e-learning e del gestionale.</p>
         <form onSubmit="{{ doLogin }}">
           <input ref="{{ pwRef }}" class="sfv-field" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;background:#16290D;border:1px solid rgba(217,182,92,.25);color:#F3EFE4;font-size:15px;padding:13px 15px;border-radius:4px;margin-bottom:14px" style-focus="border-color:#D9B65C">
           <sc-if value="{{ loginError }}" hint-placeholder-val="{{ false }}">
@@ -78,6 +79,13 @@
           </sc-if>
         </button>
       </div>
+
+      <sc-if value="{{ importVisible }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:#1F3814;border:1px dashed rgba(217,182,92,.35);border-radius:6px;padding:14px 18px;margin-bottom:24px">
+          <p style="font-size:13px;color:#B9C4AE;max-width:62ch;line-height:1.5">{{ importMsg }}</p>
+          <button onClick="{{ doImport }}" disabled="{{ importBusy }}" style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;background:transparent;color:#D9B65C;border:1px solid rgba(217,182,92,.45);padding:9px 14px;border-radius:4px;cursor:pointer;white-space:nowrap">{{ importLabel }}</button>
+        </div>
+      </sc-if>
 
       <sc-if value="{{ showLoc }}" hint-placeholder-val="{{ true }}">
       <div>
@@ -264,6 +272,9 @@ class Component extends DCLogic {
     tab: 'loc',
     reviews: [],
     revError: '',
+    importBusy: false,
+    importDone: false,
+    importMsg: 'Le locandine e le recensioni salvate prima del 12 novembre sono nel vecchio archivio di Vercel, al momento bloccato. Quando Vercel lo sblocca, premi qui per copiarle su Firebase.',
     loadFailed: false,
     revLoadFailed: false
   };
@@ -283,7 +294,7 @@ class Component extends DCLogic {
   componentDidMount(){
     this.waitForData(() => {
       // se già loggato in questa sessione
-      const sess = sessionStorage.getItem('sfv:admin:ok') === '1';
+      const sess = sessionStorage.getItem('sfv:admin:ok') === '1' && window.SFVData && window.SFVData.isLogged();
       this.setState({ booted: true, authed: sess });
       if (sess) this.fetchItems();
     });
@@ -314,35 +325,50 @@ class Component extends DCLogic {
       this.setState({ revError: 'Operazione bloccata: le recensioni non sono state caricate dal server. Ricarica la pagina più tardi.' });
       return;
     }
-    const apply = (list) => list
-      .map(r => r.id === id && action !== 'reject' ? { ...r, stato: 'approved' } : r)
-      .filter(r => !(action === 'reject' && r.id === id));
-    this.setState({ reviews: apply(this.state.reviews), revError: '' });
+    const r = (this.state.reviews || []).find(x => x.id === id);
+    if (!r) return;
+    this.setState({ revError: '' });
     try {
-      // Rilegge l'elenco dal server prima di salvare: cosi' una recensione
-      // arrivata mentre il pannello era aperto non viene sovrascritta.
-      const fresh = await window.SFVData.listReviewsAll();
-      const next = apply(fresh || []);
-      await window.SFVData.saveReviews(next);
-      this.setState({ reviews: next });
+      if (action === 'approve') await window.SFVData.approveReview(r);
+      else if (r.stato === 'approved') await window.SFVData.removeReview(r);
+      else await window.SFVData.rejectReview(r);
     } catch(e){
-      this.setState({ revError: 'Salvataggio non riuscito: ' + e.message });
-      this.fetchReviews();
+      this.setState({ revError: 'Operazione non riuscita: ' + e.message });
     }
+    this.fetchReviews();
   }
+
+  doImport = async () => {
+    if (this.state.importBusy) return;
+    this.setState({ importBusy: true, importMsg: 'Importazione in corso…' });
+    try {
+      const n = await window.SFVData.importaVecchioArchivio();
+      this.setState({ importBusy: false, importDone: true, importMsg: 'Importazione completata: ' + n.locandine + ' locandine e ' + n.recensioni + ' recensioni aggiunte.' });
+      this.fetchItems();
+    } catch(e){
+      this.setState({ importBusy: false, importMsg: e.message });
+    }
+  };
+
+  doLogout = () => {
+    window.SFVData.logout();
+    sessionStorage.removeItem('sfv:admin:ok');
+    this.setState({ authed: false, items: [], reviews: [] });
+  };
 
   doLogin = async (ev) => {
     ev.preventDefault();
     const val = (this.pwRef.current && this.pwRef.current.value) || '';
     if (!val){ this.setState({ loginError: 'Inserisci la password.' }); return; }
+    this.setState({ loginError: 'Accesso in corso…' });
     let ok = false;
-    try { ok = await window.SFVData.verifyPassword(val); }
-    catch(e){ this.setState({ loginError: 'Controllo non riuscito: verifica la connessione e riprova.' }); return; }
+    try { ok = await window.SFVData.login(val); }
+    catch(e){ this.setState({ loginError: e.message || 'Controllo non riuscito: verifica la connessione e riprova.' }); return; }
     if (!ok){
       this.setState({ loginError: 'Password non corretta.' });
       return;
     }
-    window.SFVData.setToken(val);
+    if (this.pwRef.current) this.pwRef.current.value = '';
     sessionStorage.setItem('sfv:admin:ok', '1');
     this.setState({ authed: true, loginError: '' });
     this.fetchItems();
@@ -436,7 +462,7 @@ class Component extends DCLogic {
       const clean = this.state.items.map(it => { const c = Object.assign({}, it); delete c.uploading; return c; });
       await window.SFVData.save(clean);
       this.setState({ saving: false, dirty: false, saveMsg: window.SFVData.isRemote()
-        ? 'Salvato! Le modifiche sono ora online e visibili a tutti.'
+        ? 'Salvato! Le modifiche sono online: sul sito compaiono entro un minuto.'
         : 'Salvato in modalità demo (solo su questo browser). Collega il backend per pubblicarle a tutti.' });
     } catch(e){
       this.setState({ saving: false, errMsg: 'Salvataggio non riuscito: ' + e.message });
@@ -487,8 +513,15 @@ class Component extends DCLogic {
       approve: () => this.moderateReview(r.id, 'approve'),
       reject: () => this.moderateReview(r.id, 'reject')
     });
+    const importVisible = !this.state.importDone || this.state.importBusy;
 
     return {
+      importVisible,
+      importMsg: this.state.importMsg,
+      importBusy: this.state.importBusy,
+      importLabel: this.state.importBusy ? 'Importo…' : 'Importa dal vecchio archivio',
+      doImport: this.doImport,
+      doLogout: this.doLogout,
       tabLoc: () => this.setState({ tab: 'loc' }),
       tabRev: () => { this.setState({ tab: 'rev' }); },
       showLoc: tab === 'loc',
@@ -530,7 +563,7 @@ class Component extends DCLogic {
       modeColor: remote ? '#8FCB6E' : '#D9B65C',
       modeBorder: remote ? 'rgba(143,203,110,.4)' : 'rgba(217,182,92,.4)',
       modeHint: remote
-        ? 'Modalità online: le modifiche vengono salvate sul database e viste da tutti.'
+        ? 'I dati sono su Firebase: le modifiche sono visibili a tutti. La password è quella dell\'amministratore della piattaforma.'
         : 'Modalità demo: il backend non è ancora collegato, quindi le modifiche restano su questo browser. Vedi GUIDA-PUBBLICAZIONE per attivare la pubblicazione a tutti.'
     };
   }
