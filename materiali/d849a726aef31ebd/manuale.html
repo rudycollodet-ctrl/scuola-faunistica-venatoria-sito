@@ -560,4 +560,77 @@ ul.crl li{break-inside:avoid;margin-bottom:3px}
   };
 })();
 </script>
+<style>
+.ctl .zgrp{display:inline-flex;align-items:center;gap:4px}
+.ctl .zgrp button{min-width:36px;padding:7px 10px}
+.ctl #zlab{min-width:58px;font-variant-numeric:tabular-nums}
+.stage.zoomed{justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stage.zoomed #bookwrap{flex:0 0 auto;margin:0 auto}
+#reader .rzoom{display:flex;gap:6px;align-self:flex-end}
+#reader .rzoom button{font:600 14px var(--body);color:var(--paper);background:transparent;border:1px solid rgba(246,241,228,.4);border-radius:8px;padding:7px 12px;cursor:pointer;min-width:40px}
+@media (max-width:760px){.ctl{flex-wrap:wrap;justify-content:flex-end}}
+</style>
+<script>
+/* Zoom del manuale: ingrandisce davvero il libro (non un'immagine), cosi' il testo resta nitido
+   e si possono ancora girare le pagine. Funziona anche nella vista "Leggi". */
+(function(){
+  const STEPS=[1,1.25,1.5,1.75,2,2.5,3];
+  const W=560,H=790;
+  let zi=0;
+  function ready(fn){ if(document.getElementById('bookwrap')) fn(); else setTimeout(()=>ready(fn),50); }
+  ready(function(){
+    const ctl=document.querySelector('.ctl'), wrap=document.getElementById('bookwrap'), stage=document.querySelector('.stage');
+    const g=document.createElement('span'); g.className='zgrp';
+    g.innerHTML='<button type="button" id="zout" aria-label="Riduci" title="Riduci (tasto -)">−</button>'+
+                '<button type="button" id="zlab" title="Torna a dimensione normale (tasto 0)">100%</button>'+
+                '<button type="button" id="zin" aria-label="Ingrandisci" title="Ingrandisci (tasto +)">+</button>';
+    ctl.insertBefore(g, ctl.firstChild.nextSibling);
+    const lab=g.querySelector('#zlab');
+    function base(){
+      const avH=Math.max(320,window.innerHeight-(document.querySelector('.bar').offsetHeight+40));
+      const portrait=window.innerWidth<760;
+      return Math.floor(Math.min(portrait? avH*W/H : avH*2*W/H, 1120));
+    }
+    function applyBook(){
+      const z=STEPS[zi], b=base();
+      if(z===1){ stage.classList.remove('zoomed'); wrap.style.width=''; wrap.style.maxWidth=b+'px'; }
+      else { stage.classList.add('zoomed'); const w=Math.floor(b*z); wrap.style.width=w+'px'; wrap.style.maxWidth=w+'px'; }
+      lab.textContent=Math.round(z*100)+'%';
+      const r=document.querySelector('#reader .rin'); if(r){ r.style.zoom=z; }
+    }
+    function set(n){
+      const old=STEPS[zi]; zi=Math.max(0,Math.min(STEPS.length-1,n));
+      if(STEPS[zi]===old && n!==0) return;
+      // centro della vista prima dello zoom, per restare sullo stesso punto
+      const cx=(stage.scrollLeft+stage.clientWidth/2)/Math.max(1,stage.scrollWidth);
+      const cy=(window.scrollY+window.innerHeight/2)/Math.max(1,document.documentElement.scrollHeight);
+      applyBook();
+      window.dispatchEvent(new Event('resize'));
+      setTimeout(()=>{ applyBook(); stage.scrollLeft=cx*stage.scrollWidth-stage.clientWidth/2; window.scrollTo(0,cy*document.documentElement.scrollHeight-window.innerHeight/2); },120);
+    }
+    g.querySelector('#zin').onclick=()=>set(zi+1);
+    g.querySelector('#zout').onclick=()=>set(zi-1);
+    lab.onclick=()=>set(0);
+    // il ridimensionamento del manuale riporta la larghezza al valore normale: la reimpostiamo dopo
+    window.addEventListener('resize',()=>{ applyBook(); });
+    document.addEventListener('keydown',e=>{
+      if(e.target&&/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+      if(e.key==='+'||e.key==='=') { e.preventDefault(); set(zi+1); }
+      else if(e.key==='-'||e.key==='_') { e.preventDefault(); set(zi-1); }
+      else if(e.key==='0') { set(0); }
+    });
+    // vista "Leggi": aggiunge i pulsanti di zoom e applica lo zoom corrente
+    new MutationObserver(()=>{
+      const r=document.getElementById('reader'); if(!r||r.dataset.z) return; r.dataset.z='1';
+      const inn=r.querySelector('.rin'); if(!inn) return;
+      const bar=document.createElement('div'); bar.className='rzoom';
+      bar.innerHTML='<button type="button" aria-label="Riduci">−</button><button type="button" aria-label="Ingrandisci">+</button>';
+      const [o,i]=bar.querySelectorAll('button');
+      o.onclick=e=>{e.stopPropagation(); set(zi-1);}; i.onclick=e=>{e.stopPropagation(); set(zi+1);};
+      const c=inn.querySelector('.rclose'); if(c){ c.parentNode.insertBefore(bar,c); bar.appendChild(c); } else inn.prepend(bar);
+      inn.style.zoom=STEPS[zi];
+    }).observe(document.body,{childList:true});
+  });
+})();
+</script>
 </body></html>
