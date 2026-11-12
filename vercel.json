@@ -116,7 +116,7 @@
       ]
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!materiali/).*)",
       "headers": [
         {
           "key": "X-Content-Type-Options",
@@ -156,6 +156,31 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/materiali/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "no-referrer"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'self' https://nuova-piattaforma-corsi-scuola-faun.vercel.app https://*.vercel.app"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
         }
       ]
     }
